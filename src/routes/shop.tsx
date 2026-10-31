@@ -1,0 +1,10 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { getShopProducts } from "@/lib/shopify";
+import { MerchandiseCart } from "@/components/shop-cart";
+import { ProductPurchase } from "@/components/shop-product";
+const productsOptions = queryOptions({ queryKey: ["shop-products"], queryFn: () => getShopProducts() });
+export const Route = createFileRoute("/shop")({ loader: ({ context }) => context.queryClient.ensureQueryData(productsOptions), head: () => ({ meta: [
+  { title: "AGN Event Merchandise" }, { name: "description", content: "Official Aether Gaming Networks event merchandise and tournament collectibles." }, { property: "og:title", content: "AGN Event Merchandise" }, { property: "og:description", content: "Explore merchandise for AGN tournament events." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+] }), component: Shop });
+function Shop() { const { data } = useSuspenseQuery(productsOptions); return <main className="dark min-h-screen bg-vault-bg px-4 py-10 font-body text-foreground"><div className="mx-auto max-w-6xl"><header className="flex flex-wrap items-center justify-between gap-4 border-b border-wager-line/40 pb-6"><h1 className="font-display text-3xl text-gold">AGN Event Merchandise</h1><MerchandiseCart /></header>{!data.length ? <p className="py-16 text-center text-muted-foreground">No products found</p> : <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{data.map((p) => <article key={p.id} className="min-w-0 rounded-sm border border-wager-line/30 p-4"><Link to="/product/$handle" params={{ handle: p.handle }}>{p.images.nodes[0] && <img src={p.images.nodes[0].url} alt={p.images.nodes[0].altText ?? p.title} className="aspect-square w-full object-contain" />}<h2 className="mt-4 font-display text-lg text-gold">{p.title}</h2></Link><p className="my-3 text-sm text-muted-foreground">{p.description}</p><ProductPurchase product={p} /></article>)}</div>}</div></main>; }

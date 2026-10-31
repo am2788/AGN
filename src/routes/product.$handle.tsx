@@ -1,0 +1,9 @@
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { getShopProduct } from "@/lib/shopify";
+import { MerchandiseCart } from "@/components/shop-cart";
+import { ProductPurchase } from "@/components/shop-product";
+export const Route = createFileRoute("/product/$handle")({ loader: async ({ params }) => { const product = await getShopProduct({ data: { handle: params.handle } }); if (!product) throw notFound(); return product; }, head: ({ loaderData }) => ({ meta: [
+  { title: `${loaderData?.title ?? "Event Product"} — AGN Merchandise` }, { name: "description", content: loaderData?.description ?? "AGN event merchandise product." }, { property: "og:title", content: `${loaderData?.title ?? "Event Product"} — AGN Merchandise` }, { property: "og:description", content: loaderData?.description ?? "AGN event merchandise product." }, { property: "og:type", content: "product" }, { name: "twitter:card", content: "summary_large_image" },
+  ...(loaderData?.images.nodes[0]?.url.startsWith("https://") ? [{ property: "og:image", content: loaderData.images.nodes[0].url }, { name: "twitter:image", content: loaderData.images.nodes[0].url }] : []),
+] }), component: Product });
+function Product() { const product = Route.useLoaderData(); return <main className="dark min-h-screen bg-vault-bg px-4 py-10 font-body text-foreground"><div className="mx-auto max-w-5xl"><div className="mb-8 flex justify-between"><Link to="/shop" className="text-gold underline">Event merchandise</Link><MerchandiseCart /></div><div className="grid gap-8 md:grid-cols-2">{product.images.nodes[0] && <img src={product.images.nodes[0].url} alt={product.images.nodes[0].altText ?? product.title} className="aspect-square w-full object-contain" />}<section><h1 className="font-display text-3xl text-gold">{product.title}</h1><p className="my-6 text-muted-foreground">{product.description}</p><ProductPurchase product={product} /></section></div></div></main>; }
