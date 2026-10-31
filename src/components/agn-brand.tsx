@@ -5,15 +5,15 @@ import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAccountSession } from "@/components/account-session";
 import { supabase } from "@/integrations/supabase/client";
-import crest from "@/assets/Aether_Gaming_gold_Poster.png.asset.json";
+import crest from "@/assets/agn-crest.png";
 
 export function AgnCrest({ prominent = false }: { prominent?: boolean }) {
   return (
     <img
-      src={crest.url}
+      src={crest}
       alt="Aether Gaming Networks gold poster with ruby crest and AGN lettering"
-      width={1920}
-      height={1080}
+      width={422}
+      height={238}
       decoding="async"
       className={prominent ? "mx-auto block h-auto w-full max-w-[320px] object-contain sm:max-w-[560px]" : "block h-10 w-auto max-w-full shrink-0 object-contain"}
     />
