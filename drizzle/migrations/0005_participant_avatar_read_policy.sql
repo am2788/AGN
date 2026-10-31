@@ -1,0 +1,4 @@
+CREATE POLICY "Read own or opted in avatar files" ON storage.objects FOR SELECT TO authenticated USING (bucket_id='participant-avatars' AND EXISTS(SELECT 1 FROM public.participant_avatars a JOIN public.profiles p ON p.id=a.user_id WHERE a.storage_path=name AND (a.user_id=auth.uid() OR p.leaderboard_visible=true)));
+ALTER TABLE public.avatar_forge_blocks ADD COLUMN generation_id uuid;
+ALTER TABLE public.avatar_forge_blocks ADD COLUMN prompt text;
+COMMENT ON TABLE public.avatar_forge_blocks IS 'Fail-closed generation lock persisted before provider calls. Terminal provider denial keeps the lock until owner verifies restored access. Successful completed image saves clear only their generation lock.';

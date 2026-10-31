@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "short_name": "AGN",
+  "name": "Aether Gaming Networks (AGN)",
+  "icons": [
+    { "src": "/assets/icons/agn-launcher-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "/assets/icons/agn-launcher-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" }
+  ],
+  "start_url": "/leaderboard",
+  "scope": "/",
+  "background_color": "#0A0C10",
+  "theme_color": "#00E5FF",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "shortcuts": [
+    { "name": "View Leaderboard", "url": "/leaderboard", "description": "View player and viewer ranks" }
+  ]
+}
