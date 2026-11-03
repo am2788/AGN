@@ -3,32 +3,40 @@ query "auth/login" verb=POST {
   api_group = "Authentication"
 
   input {
-    email email? filters=trim|lower
-    text password?
+    // User email address
+    email? email? filters=trim|lower
+  
+    // User account password
+    text? password?
   }
 
   stack {
+    // Look up user record by email
     db.get user {
       field_name = "email"
       field_value = $input.email
       output = ["id", "created_at", "name", "email", "password"]
     } as $user
   
+    // Ensure user was found, otherwise return 400 Bad Request
     precondition ($user != null) {
-      error_type = "accessdenied"
-      error = "Invalid Credentials."
+      error_type = "inputerror"
+      error = "Invalid credentials"
     }
   
+    // Verify input password against stored hash
     security.check_password {
       text_password = $input.password
       hash_password = $user.password
     } as $pass_result
   
+    // Ensure password matches, otherwise return 400 Bad Request
     precondition ($pass_result) {
-      error_type = "accessdenied"
-      error = "Invalid Credentials."
+      error_type = "inputerror"
+      error = "Invalid credentials"
     }
   
+    // Generate authenticated session token
     security.create_auth_token {
       table = "user"
       extras = {}

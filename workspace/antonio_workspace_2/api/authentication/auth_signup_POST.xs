@@ -3,37 +3,45 @@ query "auth/signup" verb=POST {
   api_group = "Authentication"
 
   input {
-    text name?
-    email email? filters=trim|lower
-    text password?
+    // User display name
+    text? name?
+  
+    // User email address
+    email? email? filters=trim|lower
+  
+    // User account password
+    text? password?
   
     // Mobile phone number (optional)
-    text? phone_number filters=trim
+    text? phone_number? filters=trim
   
     // Optional device ID from client
-    text? device_id filters=trim
+    text? device_id? filters=trim
   
     // Client hardware identifier for The Shield
-    text? hardware_fingerprint filters=trim
+    text? hardware_fingerprint? filters=trim
   
     // Front scan image URL of government-issued ID
-    text? id_front_image filters=trim
+    text? id_front_image? filters=trim
   
     // Back scan image URL of government-issued ID
-    text? id_back_image filters=trim
+    text? id_back_image? filters=trim
   }
 
   stack {
+    // Look up existing user by email
     db.get user {
       field_name = "email"
       field_value = $input.email
     } as $user
   
+    // Ensure account is not already registered, returning 400 Bad Request if taken
     precondition ($user == null) {
-      error_type = "accessdenied"
+      error_type = "inputerror"
       error = "This account is already in use."
     }
   
+    // Insert new user record
     db.add user {
       enforce_hidden_fields = false
       data = {
@@ -59,6 +67,7 @@ query "auth/signup" verb=POST {
       }
     } as $wallet
   
+    // Generate authenticated session token
     security.create_auth_token {
       table = "user"
       extras = {}
