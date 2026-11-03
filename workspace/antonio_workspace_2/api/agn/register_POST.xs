@@ -9,7 +9,7 @@ query register verb=POST {
     // User login email
     email email filters=trim|lower
   
-    // Mobile phone number required ONLY for tournament participants (optional for wagerer/spectator)
+    // Mobile phone number (optional)
     text? phone_number filters=trim
   
     // Account password (optional if signing up via Google or Apple OAuth)
@@ -39,6 +39,9 @@ query register verb=POST {
     // Client hardware identifier for The Shield
     text? hardware_fingerprint filters=trim
   
+    // Optional device ID from client
+    text? device_id filters=trim
+  
     // Front scan image URL of government-issued ID (for 18+ wagering pathway)
     text? id_front_image filters=trim
   
@@ -47,16 +50,6 @@ query register verb=POST {
   }
 
   stack {
-    // Enforce phone mandate strictly for tournament participants (Competitor pathway)
-    conditional {
-      if ($input.pathway == "competitor") {
-        precondition ($input.phone_number != null && (($input.phone_number|strlen) >= 7)) {
-          error_type = "inputerror"
-          error = "A valid phone number is required for tournament participants for 15-minute check-in and Shield alerts."
-        }
-      }
-    }
-  
     // Check if email is already registered
     db.get user {
       field_name = "email"
@@ -144,7 +137,8 @@ query register verb=POST {
         social_youtube        : $input.social_youtube
         social_twitch         : $input.social_twitch
         social_spotify        : $input.social_spotify
-        hardware_fingerprint  : $input.hardware_fingerprint
+        hardware_fingerprint  : ($input.hardware_fingerprint ?? $input.device_id)
+        device_id             : ($input.device_id ?? $input.hardware_fingerprint)
         has_first_strike      : $is_first_strike
         calling_card          : $calling_card
         kyc_status            : $initial_kyc
@@ -190,6 +184,8 @@ query register verb=POST {
 
   response = {
     auth_token                  : $authToken
+    authToken                   : $authToken
+    token                       : $authToken
     user                        : ```
       {
         id: $new_user.id,

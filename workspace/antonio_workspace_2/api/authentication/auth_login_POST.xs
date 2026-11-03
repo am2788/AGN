@@ -37,5 +37,16 @@ query "auth/login" verb=POST {
     } as $authToken
   }
 
-  response = {authToken: $authToken}
+  response = {
+    authToken : $authToken
+    token     : $authToken
+    auth_token: $authToken
+    user      : ```
+      {
+        id: $user.id,
+        name: $user.name,
+        email: $user.email
+      }
+      ```
+  }
 }

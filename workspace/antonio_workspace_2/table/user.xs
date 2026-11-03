@@ -97,6 +97,9 @@ table user {
   
     // Private participant streaming key for tournament matches
     text? exclusive_stream_key filters=trim
+  
+    // Optional device ID from client
+    text? device_id filters=trim
   }
 
   index = [

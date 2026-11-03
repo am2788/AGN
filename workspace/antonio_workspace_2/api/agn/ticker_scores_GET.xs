@@ -3,6 +3,8 @@ query ticker_scores verb=GET {
   api_group = "AGN"
 
   input {
+    // Optional match identifier to filter live scores
+    int? match_id
   }
 
   stack {
@@ -60,6 +62,7 @@ query ticker_scores verb=GET {
         }
       }
     
+      where = $db.match_results_ledger.match_id ==? $input.match_id
       sort = {created_at: "desc"}
       eval = {
         winner_name  : $db.user.name
@@ -69,7 +72,7 @@ query ticker_scores verb=GET {
       return = {type: "list", paging: {page: 1, per_page: 10}}
     } as $recent_results
   
-    // Retrieve active matches in progress
+    // Retrieve active matches in progress, or filtered by match_id if provided
     db.query match_lobby {
       join = {
         p1: {
@@ -78,10 +81,10 @@ query ticker_scores verb=GET {
         }
       }
     
-      where = $db.match_lobby.lobby_status == "active_match"
+      where = ($db.match_lobby.id ==? $input.match_id) && ($input.match_id != null || $db.match_lobby.lobby_status == "active_match")
       sort = {id: "desc"}
       eval = {p1_name: $db.user.name}
-      return = {type: "list", paging: {page: 1, per_page: 5}}
+      return = {type: "list", paging: {page: 1, per_page: 10}}
     } as $live_matches
   }
 
@@ -100,5 +103,6 @@ query ticker_scores verb=GET {
         active_live_lobbies: $live_matches
       }
       ```
+    live_matches : $live_matches
   }
 }
