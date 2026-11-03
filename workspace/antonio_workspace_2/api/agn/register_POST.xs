@@ -51,9 +51,10 @@ query register verb=POST {
 
   stack {
     // Check if email is already registered
-    db.get user {
-      field_name = "email"
-      field_value = $input.email
+    db.query user {
+      where = $db.user.email == $input.email
+      return = {type: "single"}
+      output = ["id"]
     } as $existing_user
   
     precondition ($existing_user == null) {

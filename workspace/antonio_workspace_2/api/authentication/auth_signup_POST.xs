@@ -7,7 +7,7 @@ query "auth/signup" verb=POST {
     text? name?
   
     // User email address
-    email? email? filters=trim|lower
+    text? email? filters=trim|lower
   
     // User account password
     text? password?
@@ -30,9 +30,10 @@ query "auth/signup" verb=POST {
 
   stack {
     // Look up existing user by email
-    db.get user {
-      field_name = "email"
-      field_value = $input.email
+    db.query user {
+      where = $db.user.email == $input.email
+      return = {type: "single"}
+      output = ["id"]
     } as $user
   
     // Ensure account is not already registered, returning 400 Bad Request if taken

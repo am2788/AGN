@@ -4,17 +4,23 @@ query "auth/login" verb=POST {
 
   input {
     // User email address
-    email? email? filters=trim|lower
+    text? email? filters=trim|lower
   
     // User account password
     text? password?
   }
 
   stack {
+    // Validate credentials input is present
+    precondition ($input.email != null && $input.password != null) {
+      error_type = "inputerror"
+      error = "Invalid credentials"
+    }
+  
     // Look up user record by email
-    db.get user {
-      field_name = "email"
-      field_value = $input.email
+    db.query user {
+      where = $db.user.email == $input.email
+      return = {type: "single"}
       output = ["id", "created_at", "name", "email", "password"]
     } as $user
   
@@ -26,7 +32,7 @@ query "auth/login" verb=POST {
   
     // Verify input password against stored hash
     security.check_password {
-      text_password = $input.password
+      text_password = ($input.password ?? "")
       hash_password = $user.password
     } as $pass_result
   
