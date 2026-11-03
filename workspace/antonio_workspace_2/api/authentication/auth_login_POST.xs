@@ -12,9 +12,9 @@ query "auth/login" verb=POST {
 
   stack {
     // Look up user record by email
-    db.get user {
-      field_name = "email"
-      field_value = $input.email
+    db.query user {
+      where = $db.user.email == $input.email
+      return = {type: "single"}
       output = ["id", "created_at", "name", "email", "password"]
     } as $user
   
