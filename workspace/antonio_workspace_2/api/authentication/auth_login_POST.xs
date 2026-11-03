@@ -4,13 +4,19 @@ query "auth/login" verb=POST {
 
   input {
     // User email address
-    text? email filters=trim|lower
+    text email filters=trim|lower
   
     // User account password
-    text? password
+    text password
   }
 
   stack {
+    // Validate email and password are provided and non-empty
+    precondition ($input.email != "" && $input.password != "") {
+      error_type = "inputerror"
+      error = "Invalid credentials"
+    }
+  
     // Look up user record by email
     db.query user {
       where = $db.user.email == $input.email
