@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AgnCrest } from "@/components/agn-brand";
 import { ARENA_VIEWS, arenaClock, nextArenaStart } from "@/lib/arena-shell";
-import { crowdfundBaselineLabel } from "@/lib/theatre";
+import { crowdfundBaselineLabel, PRIZE_PER_PERSON_LABEL } from "@/lib/theatre";
 import { ArenaMediaDeck } from "@/components/arena-media-deck";
 import { useAccountSession } from "@/components/account-session";
 import { CallingCard } from "@/components/calling-card";
@@ -38,7 +38,7 @@ function BroadcastPreview() {
   return <section className="shell-frame shell-broadcast"><div className="shell-panel-title"><h2>BROADCAST</h2><span>PREVIEW · NOT LIVE</span></div><video src={video.url} poster={poster.url} controls playsInline muted loop preload="none" aria-label="AGN terminal preview video" /><p className="shell-note">Live source and latency measurement not connected</p></section>;
 }
 function PrizeValues() {
-  return <div className="shell-financials"><section className="shell-frame"><h2>PRIZE POOLS</h2><strong>{crowdfundBaselineLabel("team")}</strong><p>6v6 / squads · configured baseline</p><strong>{crowdfundBaselineLabel("solo")}</strong><p>Solo · configured baseline</p><span className="shell-note">Live funding feed unavailable</span></section><section className="shell-frame"><h2>WAGERS</h2><strong>—</strong><p>Live wager value unavailable</p><Button asChild variant="outline"><Link to="/wagers">Wagerer Vault <ArrowUpRight /></Link></Button></section></div>;
+  return <div className="shell-financials"><section className="shell-frame"><h2>PRIZE POOLS</h2><strong>{PRIZE_PER_PERSON_LABEL} PER PERSON</strong><p>The solo winner, or every member of the winning team · any roster size</p><strong>{crowdfundBaselineLabel("team")}</strong><p>6-player team · 6 × {PRIZE_PER_PERSON_LABEL}</p><strong>{crowdfundBaselineLabel("solo")}</strong><p>Solo bracket · 1 × {PRIZE_PER_PERSON_LABEL}</p><span className="shell-note">Live funding feed unavailable</span></section><section className="shell-frame"><h2>WAGERS</h2><strong>—</strong><p>Live wager value unavailable</p><Button asChild variant="outline"><Link to="/wagers">Wagerer Vault <ArrowUpRight /></Link></Button></section></div>;
 }
 export function ArenaCommandCenter() {
   const [now, setNow] = useState<number | null>(null);

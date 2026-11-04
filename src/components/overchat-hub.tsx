@@ -9,6 +9,7 @@ import { ArenaMediaDeck } from "@/components/arena-media-deck";
 import { useAccountSession } from "@/components/account-session";
 import { supabase } from "@/integrations/supabase/client";
 import { VOTE_CLOSES, VOTE_SEASON, VOTE_TITLES, seasonWeek, voteWindowOpen, type VoteTitleId } from "@/lib/season-vote";
+import { getArtworkByKey } from "@/lib/calling-card-artwork";
 
 export function OverchatHub() {
   const { user, ready } = useAccountSession();
@@ -46,6 +47,19 @@ function ChatFeed({ userId, defaultName }: { userId: string; defaultName: string
     },
     refetchInterval: 4000,
   });
+  // Equipped calling-card artwork is a public identity choice: it is only
+  // readable for members who opted into leaderboard visibility, so private
+  // accounts never expose it here.
+  const authorCards = useQuery({
+    queryKey: ["overchat-cards", (messages.data ?? []).map((m) => m.user_id).join(",")],
+    enabled: Boolean(messages.data?.length),
+    queryFn: async () => {
+      const ids = [...new Set((messages.data ?? []).map((m) => m.user_id))];
+      const { data, error } = await supabase.from("profiles").select("id, equipped_card_key").eq("leaderboard_visible", true).in("id", ids);
+      if (error) throw error;
+      return Object.fromEntries(data.map((p) => [p.id, getArtworkByKey(p.equipped_card_key)?.url ?? null])) as Record<string, string | null>;
+    },
+  });
   const post = useMutation({
     mutationFn: async (text: string) => {
       const { error } = await supabase.from("overchat_messages").insert({ body: text, display_name: defaultName.slice(0, 32), user_id: userId });
@@ -54,11 +68,21 @@ function ChatFeed({ userId, defaultName }: { userId: string; defaultName: string
     onSuccess: () => { setBody(""); void qc.invalidateQueries({ queryKey: ["overchat"] }); },
   });
   function submit(e: FormEvent) { e.preventDefault(); const t = body.trim(); if (t) post.mutate(t.slice(0, 280)); }
+  function renderMessage(m: { id: string; user_id: string; display_name: string; body: string; created_at: string }) {
+    const cardUrl = authorCards.data?.[m.user_id];
+    return (
+      <li key={m.id} className={m.user_id === userId ? "is-mine" : ""}>
+        {cardUrl ? <img src={cardUrl} alt="" loading="lazy" className="overchat-card-thumb" /> : null}
+        <strong>{m.display_name}</strong><span>{m.body}</span>
+        <time>{new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time>
+      </li>
+    );
+  }
   return (
     <section className="overchat-feed" aria-label="Live chat feed">
       <div className="shell-panel-title"><h2>LIVE CHAT FEED</h2><span>{messages.data?.length ?? 0} RECENT</span></div>
       <ol className="overchat-messages" aria-live="polite">
-        {messages.data?.length ? messages.data.map((m) => <li key={m.id} className={m.user_id === userId ? "is-mine" : ""}><strong>{m.display_name}</strong><span>{m.body}</span><time>{new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time></li>)
+        {messages.data?.length ? messages.data.map(renderMessage)
           : <li className="shell-note">No messages yet — start the conversation.</li>}
       </ol>
       <form onSubmit={submit} className="overchat-form">

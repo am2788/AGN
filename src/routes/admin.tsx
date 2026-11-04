@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getAdminMonitoring } from "@/lib/admin.functions";
 import { RegistrationControlPanel } from "@/components/registration-control-panel";
+import { SafetyQueuePanel } from "@/components/safety-queue-panel";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [
@@ -36,7 +37,7 @@ function AdminPage() {
       </div>
       <Tabs defaultValue="overview" className="mt-8">
         <TabsList className="h-auto w-full flex-wrap justify-start gap-1 rounded-sm bg-vault-panel">
-          <TabsTrigger value="overview"><Activity className="mr-2 size-4" />Overview</TabsTrigger><TabsTrigger value="registration"><Users className="mr-2 size-4" />Registration control</TabsTrigger><TabsTrigger value="servers"><Server className="mr-2 size-4" />Servers & hardware</TabsTrigger><TabsTrigger value="traffic"><Radio className="mr-2 size-4" />Audience & traffic</TabsTrigger><TabsTrigger value="diagnostics"><Wrench className="mr-2 size-4" />Troubleshooting</TabsTrigger>
+          <TabsTrigger value="overview"><Activity className="mr-2 size-4" />Overview</TabsTrigger><TabsTrigger value="registration"><Users className="mr-2 size-4" />Registration control</TabsTrigger><TabsTrigger value="safety"><ShieldCheck className="mr-2 size-4" />Safety queue</TabsTrigger><TabsTrigger value="servers"><Server className="mr-2 size-4" />Servers & hardware</TabsTrigger><TabsTrigger value="traffic"><Radio className="mr-2 size-4" />Audience & traffic</TabsTrigger><TabsTrigger value="diagnostics"><Wrench className="mr-2 size-4" />Troubleshooting</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="py-6"><h2 className="text-lg font-semibold">Connections</h2><div className="mt-4 divide-y divide-border">
           <Connection icon={Globe} name="topgamer.gg" state="Domain supplied" detail="NicNames · hosting and DNS connection not verified" />
@@ -45,6 +46,7 @@ function AdminPage() {
           <Connection icon={Radio} name="Streaming services" state="Not connected" detail="No provider-verified audience feed" />
         </div></TabsContent>
         <TabsContent value="registration" className="py-6"><RegistrationControlPanel /></TabsContent>
+        <TabsContent value="safety" className="py-6"><SafetyQueuePanel /></TabsContent>
         <TabsContent value="servers" className="py-6"><h2 className="text-lg font-semibold">Server fleet</h2><div className="mt-4 overflow-x-auto"><table className="w-full min-w-[560px] text-left text-sm"><thead className="border-b border-border text-muted-foreground"><tr>{["Server / region", "Connection", "Latency", "CPU", "Memory", "Players"].map(x => <th key={x} className="py-3 pr-4 font-normal">{x}</th>)}</tr></thead><tbody><tr><td colSpan={6} className="py-8 text-muted-foreground"><Cpu className="mb-3 size-6" />No connected hardware or game servers.</td></tr></tbody></table></div></TabsContent>
         <TabsContent value="traffic" className="py-6"><h2 className="text-lg font-semibold">Audience & traffic</h2><div className="mt-5 grid gap-8 sm:grid-cols-2"><section><Users className="size-6 text-gold" /><h3 className="mt-3 font-semibold">{snapshot.accounts} registered accounts</h3><p className="mt-2 text-sm text-muted-foreground">{snapshot.players} players · {snapshot.viewers} viewers</p></section><section><Radio className="size-6 text-muted-foreground" /><h3 className="mt-3 font-semibold">Live viewership unavailable</h3><p className="mt-2 text-sm text-muted-foreground">Concurrent viewers, site visits, bandwidth and request rates have no connected telemetry source.</p></section></div></TabsContent>
         <TabsContent value="diagnostics" className="py-6"><h2 className="text-lg font-semibold">Troubleshooting</h2><dl className="mt-5 divide-y divide-border text-sm"><div className="flex justify-between gap-4 py-4"><dt>Account data read</dt><dd className="text-gold">Successful</dd></div><div className="flex justify-between gap-4 py-4"><dt>Paused / pending avatar requests</dt><dd className="font-mono">{snapshot.pausedAvatarRequests}</dd></div><div className="flex justify-between gap-4 py-4"><dt>Hardware alerts & server logs</dt><dd className="text-muted-foreground">Not connected</dd></div></dl><p className="mt-5 text-xs text-muted-foreground">No remote restart or repair actions are enabled.</p></TabsContent>

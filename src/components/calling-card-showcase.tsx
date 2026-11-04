@@ -7,9 +7,6 @@ import { rankForPoints } from "@/lib/participant";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
-import { ForbiddenStashCard } from "./forbidden-stash-card";
-import { StickmanFirefightCard } from "./stickman-firefight-card";
-import { FirstStrikeCard } from "./first-strike-card";
 
 // Example cards only — sample callsigns illustrating each rank tier, not real participants.
 const SAMPLES = [
@@ -36,9 +33,7 @@ export function CallingCardShowcase() {
     <section className="py-8" aria-labelledby="card-showcase">
       <h2 id="card-showcase" className="font-display text-xl text-gold">Calling cards</h2>
       <p className="mt-1 text-xs text-muted-foreground">Artwork collection · Example participants</p>
-      <div className="mt-5"><FirstStrikeCard /></div>
-      <div className="mt-5"><ForbiddenStashCard username="PERSEUS" prestigeLevel={50} /></div>
-      <div className="mt-5"><StickmanFirefightCard username="PERSEUS" prestigeLevel={50} /></div>
+      {/* Premium and motion cards stay hidden from the public until launch. */}
       <div className="my-5 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-3 top-3 size-4 text-neon-blue" aria-hidden="true" />

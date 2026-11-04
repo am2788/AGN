@@ -1,5 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { ARENA_LANES, DAILY_EPISODES_AT_CAPACITY, LANES_SCHEDULE, REGIONAL_SCHEDULE, REGIONAL_SEGMENT_HOURS, laneRegionalSchedule, regionalSegment, MASTER_DEADLINE, countdownSeconds, formatCountdown, formatLaneCountdown } from "@/lib/arena";
+import { ARENA_LANES, DAILY_EPISODES_AT_CAPACITY, LANES_SCHEDULE, REGIONAL_SCHEDULE, REGIONAL_SEGMENT_HOURS, laneRegionalSchedule, regionalSegment, MASTER_DEADLINE, countdownSeconds, formatCountdown, formatLaneCountdown, LANE_TEAM_SIZES, PRIZE_PER_PERSON, lanePrizePool, prizePoolFor } from "@/lib/arena";
+
+describe("prize pools", () => {
+  it("pays $100,000 to every person who wins", () => {
+    expect(PRIZE_PER_PERSON).toBe(100_000);
+    expect(prizePoolFor(1)).toBe(100_000);
+    expect(prizePoolFor(2)).toBe(200_000);
+    expect(prizePoolFor(4)).toBe(400_000);
+    expect(prizePoolFor(6)).toBe(600_000);
+  });
+  it("derives each lane's pool from that lane's roster size", () => {
+    expect(ARENA_LANES.map((_, index) => lanePrizePool(index))).toEqual([600_000, 100_000, 100_000, 400_000, 600_000, 100_000]);
+    expect(LANE_TEAM_SIZES.map((size) => prizePoolFor(size))).toEqual([600_000, 100_000, 100_000, 400_000, 600_000, 100_000]);
+  });
+});
 
 describe("arena lanes", () => {
   it("provides exactly six distinct competitive lanes", () => {

@@ -6,6 +6,7 @@ export const profileSchema = z.object({
   avatar_key: z.enum(["crest", "shield", "swords"]),
   accent_key: z.enum(["crimson", "gold", "cyan", "silver"]).default("crimson"),
   font_key: z.enum(["body", "mono", "display", "scifi"]).default("body"),
+  theme_key: z.enum(["detailed", "simple-gold", "simple-neon"]).default("simple-gold"),
 });
 export const RANKS = [{ key: "recruit", name: "Recruit", min: 0 }, { key: "contender", name: "Contender", min: 500 }, { key: "veteran", name: "Veteran", min: 2000 }, { key: "elite", name: "Elite", min: 5000 }, { key: "master", name: "Master", min: 10000 }] as const;
 export const ENGAGEMENT_POINTS = { stream_quarter: 10, tournament_entry: 250, prediction: 50, wager: 50, referral: 100 } as const;

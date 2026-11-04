@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Clock3 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ARENA_DETAILS, LANE_CAPACITY, ARENA_LANES, ARENA_TAGLINES, ARENA_TITLES, DAILY_EPISODES_AT_CAPACITY, REGIONAL_SEGMENT_HOURS, MASTER_DEADLINE, REGION_HEADERS, PRELUDE_MINUTES, WEEKLY_ROTATION, THANKSGIVING_ROLLOUT, laneRegionalSchedule, regionalSegment, countdownSeconds, formatCountdown, formatLaneCountdown } from "@/lib/arena";
+import { ARENA_DETAILS, LANE_CAPACITY, LANE_TEAM_SIZES, ARENA_LANES, ARENA_TAGLINES, ARENA_TITLES, DAILY_EPISODES_AT_CAPACITY, REGIONAL_SEGMENT_HOURS, MASTER_DEADLINE, REGION_HEADERS, PRELUDE_MINUTES, WEEKLY_ROTATION, THANKSGIVING_ROLLOUT, laneRegionalSchedule, regionalSegment, countdownSeconds, formatCountdown, formatLaneCountdown, prizePoolAmount } from "@/lib/arena";
+import { PRIZE_PER_PERSON_LABEL } from "@/lib/theatre";
 import covers from "@/assets/tournament-covers.jpg";
 import { AgnCrest } from "@/components/agn-brand";
 import { ScheduleHelper } from "@/components/schedule-helper";
@@ -71,6 +72,7 @@ export function ArenaPortal({ initialLane }: { initialLane?: number | undefined 
                   <dl className="mb-3 space-y-2 text-xs">
                     <div><dt className="text-[10px] uppercase text-muted-foreground">Title</dt><dd className="text-foreground">{d.game}</dd></div>
                     <div><dt className="text-[10px] uppercase text-muted-foreground">Structure</dt><dd className="text-foreground">{d.structure} · {LANE_CAPACITY.toLocaleString("en-US")} capacity</dd></div>
+                    <div><dt className="text-[10px] uppercase text-muted-foreground">Prize pool</dt><dd className="text-gold">{prizePoolAmount(LANE_TEAM_SIZES[index]!)} · {PRIZE_PER_PERSON_LABEL} per person</dd></div>
                     {"airDate" in d && <div><dd className="text-gold">{d.airDate}</dd></div>}
                     <div><dt className="text-[10px] uppercase text-muted-foreground">Format</dt><dd className="text-foreground">{d.format}</dd></div>
                   </dl>

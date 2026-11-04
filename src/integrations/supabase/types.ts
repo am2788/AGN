@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      authority_reports: {
+        Row: {
+          created_at: string
+          evidence: Json
+          flag_id: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          evidence: Json
+          flag_id: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          evidence?: Json
+          flag_id?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "authority_reports_flag_id_fkey"
+            columns: ["flag_id"]
+            isOneToOne: false
+            referencedRelation: "safety_flags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       avatar_forge_blocks: {
         Row: {
           blocked_at: string
@@ -49,6 +84,45 @@ export type Database = {
           },
         ]
       }
+      direct_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       engagement_events: {
         Row: {
           action: string
@@ -78,6 +152,45 @@ export type Database = {
           {
             foreignKeyName: "engagement_events_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friendships_addressee_id_fkey"
+            columns: ["addressee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friendships_requester_id_fkey"
+            columns: ["requester_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -175,36 +288,97 @@ export type Database = {
           },
         ]
       }
+      platform_bans: {
+        Row: {
+          banned_at: string
+          banned_by: string | null
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          banned_at?: string
+          banned_by?: string | null
+          reason: string
+          user_id: string
+        }
+        Update: {
+          banned_at?: string
+          banned_by?: string | null
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_bans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_settings: {
+        Row: {
+          id: boolean
+          official_account_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: boolean
+          official_account_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: boolean
+          official_account_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_settings_official_account_id_fkey"
+            columns: ["official_account_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           accent_key: string
           avatar_key: string
           created_at: string
           display_name: string
+          equipped_card_key: string | null
           font_key: string
           id: string
           leaderboard_visible: boolean
           participant_type: string
+          theme_key: string
         }
         Insert: {
           accent_key?: string
           avatar_key?: string
           created_at?: string
           display_name?: string
+          equipped_card_key?: string | null
           font_key?: string
           id: string
           leaderboard_visible?: boolean
           participant_type?: string
+          theme_key?: string
         }
         Update: {
           accent_key?: string
           avatar_key?: string
           created_at?: string
           display_name?: string
+          equipped_card_key?: string | null
           font_key?: string
           id?: string
           leaderboard_visible?: boolean
           participant_type?: string
+          theme_key?: string
         }
         Relationships: []
       }
@@ -250,6 +424,69 @@ export type Database = {
         }
         Relationships: []
       }
+      safety_flags: {
+        Row: {
+          ai_reason: string | null
+          body: string
+          category: string
+          channel: string
+          created_at: string
+          fingerprint: Json
+          id: string
+          recipient_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sender_id: string
+          severity: string
+          status: string
+        }
+        Insert: {
+          ai_reason?: string | null
+          body: string
+          category: string
+          channel?: string
+          created_at?: string
+          fingerprint?: Json
+          id?: string
+          recipient_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sender_id: string
+          severity: string
+          status?: string
+        }
+        Update: {
+          ai_reason?: string | null
+          body?: string
+          category?: string
+          channel?: string
+          created_at?: string
+          fingerprint?: Json
+          id?: string
+          recipient_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sender_id?: string
+          severity?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safety_flags_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "safety_flags_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schedule_helper_ai_state: {
         Row: {
           id: string
@@ -294,6 +531,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      tournament_payments: {
+        Row: {
+          amount_cents: number | null
+          created_at: string
+          environment: string
+          id: string
+          price_id: string
+          registration_id: string
+          status: string
+          stripe_session_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number | null
+          created_at?: string
+          environment: string
+          id?: string
+          price_id: string
+          registration_id: string
+          status: string
+          stripe_session_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number | null
+          created_at?: string
+          environment?: string
+          id?: string
+          price_id?: string
+          registration_id?: string
+          status?: string
+          stripe_session_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_payments_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tournament_registrations: {
         Row: {
@@ -404,6 +691,10 @@ export type Database = {
         }[]
       }
       admin_monitoring_snapshot: { Args: never; Returns: Json }
+      agn_welcome_member: {
+        Args: { _member: string; _official: string }
+        Returns: undefined
+      }
       award_verified_engagement: {
         Args: { _action: string; _source_key: string; _user_id: string }
         Returns: boolean
@@ -414,6 +705,29 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      my_connections: {
+        Args: never
+        Returns: {
+          created_at: string
+          display_name: string
+          friendship_id: string
+          incoming: boolean
+          other_id: string
+          status: string
+        }[]
+      }
+      official_account_id: { Args: never; Returns: string }
+      review_safety_flag: {
+        Args: { _decision: string; _flag_id: string }
+        Returns: undefined
+      }
+      search_members: {
+        Args: { _q: string }
+        Returns: {
+          display_name: string
+          id: string
+        }[]
       }
       title_vote_totals: {
         Args: { _season: string }

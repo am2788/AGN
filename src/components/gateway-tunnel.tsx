@@ -20,7 +20,7 @@ import hardlockPlate from "@/assets/gateway/hardlock-plate.png.asset.json";
 const PRIZES = [
   { title: "Daily Match Winnings", subtitle: "Daily competitive match prizes", Icon: Trophy },
   { title: "Finals Qualifier Winner", subtitle: "Qualification for the finals", Icon: Swords },
-  { title: "Overall Tournament Jackpot", subtitle: "The championship prize pool", Icon: Crown },
+  { title: "Overall Tournament Jackpot", subtitle: `The championship prize pool · $100,000 per person`, Icon: Crown },
 ];
 
 export function GatewayTunnel() {

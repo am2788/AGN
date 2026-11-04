@@ -1,4 +1,7 @@
-import { LANE_CAPACITY } from "@/lib/arena";
+import { LANE_CAPACITY, PRIZE_PER_PERSON, prizePoolAmount, prizePoolFor } from "@/lib/arena";
+
+/** The per-person payout, spelled out for screens that state the rule. */
+export const PRIZE_PER_PERSON_LABEL = `$${PRIZE_PER_PERSON.toLocaleString("en-US")}`;
 
 export const BUFFER_SECONDS = 45;
 export const ACTIVE_LOOP_END_SECONDS = 8.5;
@@ -14,9 +17,9 @@ export const THEATRE_GAMES = {
 } as const;
 export type TheatreGame = keyof typeof THEATRE_GAMES;
 
-/** Crowdfunded prize baselines: 6v6/squad brackets at $600,000, solo brackets at $85,000. */
-export const CROWDFUND_BASELINES = { team: 600_000, solo: 85_000 } as const;
-export type BracketFormat = keyof typeof CROWDFUND_BASELINES;
+/** Prize pools pay $100,000 per person, so a bracket's pool follows its winning roster size. */
+export const BRACKET_ROSTER_SIZES = { team: 6, solo: 1 } as const;
+export type BracketFormat = keyof typeof BRACKET_ROSTER_SIZES;
 
 /** Stage caption for a bracket format; keeps the displayed label and baseline in step. */
 export function bracketFormatLabel(format: BracketFormat) {
@@ -28,7 +31,7 @@ export const CROWDFUND_BASELINE_CAPTION = "And Counting";
 
 /** The dollar figure alone, so the caption can break onto its own line on narrow screens. */
 export function crowdfundBaselineAmount(format: BracketFormat) {
-  return `$${CROWDFUND_BASELINES[format].toLocaleString("en-US")}`;
+  return prizePoolAmount(BRACKET_ROSTER_SIZES[format]);
 }
 
 /** Display caption for a bracket baseline; every prize pool amount reads "and counting". */
@@ -39,7 +42,7 @@ export function crowdfundBaselineLabel(format: BracketFormat) {
 
 export const BROADCAST_BASELINE = {
   format: "solo" as BracketFormat,
-  prizePool: CROWDFUND_BASELINES.solo,
+  prizePool: prizePoolFor(BRACKET_ROSTER_SIZES.solo),
   registrationLimit: LANE_CAPACITY,
   source: "configured-baseline" as const,
 };

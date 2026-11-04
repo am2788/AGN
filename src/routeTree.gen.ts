@@ -14,6 +14,7 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ArenaRouteImport } from './routes/arena'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as GatewayRouteImport } from './routes/gateway'
 import { Route as HubRouteImport } from './routes/hub'
 import { Route as JoinRouteImport } from './routes/join'
@@ -28,6 +29,7 @@ import { Route as ArenaSplatRouteImport } from './routes/arena.$'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
 import { Route as ConsoleAssetsAssetRouteImport } from './routes/console.assets.$asset'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +54,11 @@ const ArenaRoute = ArenaRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FriendsRoute = FriendsRouteImport.update({
+  id: '/friends',
+  path: '/friends',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GatewayRoute = GatewayRouteImport.update({
@@ -124,6 +131,12 @@ const ConsoleAssetsAssetRoute = ConsoleAssetsAssetRouteImport.update({
   path: '/console/assets/$asset',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -131,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/arena': typeof ArenaRouteWithChildren
   '/auth': typeof AuthRoute
+  '/friends': typeof FriendsRoute
   '/gateway': typeof GatewayRoute
   '/hub': typeof HubRoute
   '/join': typeof JoinRoute
@@ -145,12 +159,14 @@ export interface FileRoutesByFullPath {
   '/arena/': typeof ArenaIndexRoute
   '/console/': typeof ConsoleIndexRoute
   '/console/assets/$asset': typeof ConsoleAssetsAssetRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/friends': typeof FriendsRoute
   '/gateway': typeof GatewayRoute
   '/hub': typeof HubRoute
   '/join': typeof JoinRoute
@@ -165,6 +181,7 @@ export interface FileRoutesByTo {
   '/arena': typeof ArenaIndexRoute
   '/console': typeof ConsoleIndexRoute
   '/console/assets/$asset': typeof ConsoleAssetsAssetRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -173,6 +190,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/arena': typeof ArenaRouteWithChildren
   '/auth': typeof AuthRoute
+  '/friends': typeof FriendsRoute
   '/gateway': typeof GatewayRoute
   '/hub': typeof HubRoute
   '/join': typeof JoinRoute
@@ -187,6 +205,7 @@ export interface FileRoutesById {
   '/arena/': typeof ArenaIndexRoute
   '/console/': typeof ConsoleIndexRoute
   '/console/assets/$asset': typeof ConsoleAssetsAssetRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -196,6 +215,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/arena'
     | '/auth'
+    | '/friends'
     | '/gateway'
     | '/hub'
     | '/join'
@@ -210,12 +230,14 @@ export interface FileRouteTypes {
     | '/arena/'
     | '/console/'
     | '/console/assets/$asset'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/account'
     | '/admin'
     | '/auth'
+    | '/friends'
     | '/gateway'
     | '/hub'
     | '/join'
@@ -230,6 +252,7 @@ export interface FileRouteTypes {
     | '/arena'
     | '/console'
     | '/console/assets/$asset'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
@@ -237,6 +260,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/arena'
     | '/auth'
+    | '/friends'
     | '/gateway'
     | '/hub'
     | '/join'
@@ -251,6 +275,7 @@ export interface FileRouteTypes {
     | '/arena/'
     | '/console/'
     | '/console/assets/$asset'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -259,6 +284,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ArenaRoute: typeof ArenaRouteWithChildren
   AuthRoute: typeof AuthRoute
+  FriendsRoute: typeof FriendsRoute
   GatewayRoute: typeof GatewayRoute
   HubRoute: typeof HubRoute
   JoinRoute: typeof JoinRoute
@@ -271,6 +297,7 @@ export interface RootRouteChildren {
   ProductHandleRoute: typeof ProductHandleRoute
   ConsoleIndexRoute: typeof ConsoleIndexRoute
   ConsoleAssetsAssetRoute: typeof ConsoleAssetsAssetRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -308,6 +335,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/friends': {
+      id: '/friends'
+      path: '/friends'
+      fullPath: '/friends'
+      preLoaderRoute: typeof FriendsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gateway': {
@@ -408,6 +442,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleAssetsAssetRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -429,6 +470,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ArenaRoute: ArenaRouteWithChildren,
   AuthRoute: AuthRoute,
+  FriendsRoute: FriendsRoute,
   GatewayRoute: GatewayRoute,
   HubRoute: HubRoute,
   JoinRoute: JoinRoute,
@@ -441,6 +483,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductHandleRoute: ProductHandleRoute,
   ConsoleIndexRoute: ConsoleIndexRoute,
   ConsoleAssetsAssetRoute: ConsoleAssetsAssetRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

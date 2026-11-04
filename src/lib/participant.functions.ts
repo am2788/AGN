@@ -2,10 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { profileSchema, cosmeticUnlocks } from "./participant";
+import { isEquippableCard } from "./calling-card-artwork";
 
 export const getParticipantAccount = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   const [profile, rewards, entries] = await Promise.all([
-    context.supabase.from("profiles").select("id,display_name,participant_type,leaderboard_visible,avatar_key,accent_key,font_key").eq("id", context.userId).single(),
+    context.supabase.from("profiles").select("id,display_name,participant_type,leaderboard_visible,avatar_key,accent_key,font_key,theme_key,equipped_card_key").eq("id", context.userId).single(),
     context.supabase.from("participant_rewards").select("points,rank_name,bracket_wins,bracket_stage").eq("user_id", context.userId).single(),
     context.supabase.from("tournament_registrations").select("id,callsign,lane,pricing_option,quoted_fee_cents,payment_status,created_at").eq("user_id", context.userId).order("created_at", { ascending: false }),
   ]);
@@ -25,13 +26,28 @@ export const updateParticipantProfile = createServerFn({ method: "POST" }).middl
     return { saved: true };
   });
 export const getParticipantLeaderboard = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
-  const { data: profiles, error } = await context.supabase.from("profiles").select("id,display_name,participant_type,avatar_key,accent_key,font_key").eq("leaderboard_visible", true).limit(100);
+  const { data: profiles, error } = await context.supabase.from("profiles").select("id,display_name,participant_type,avatar_key,accent_key,font_key,equipped_card_key").eq("leaderboard_visible", true).limit(100);
   if (error) throw new Error("Could not load the leaderboard.");
   if (!profiles.length) return [];
   const { data: rewards, error: rewardError } = await context.supabase.from("participant_rewards").select("user_id,points,rank_name,bracket_wins,bracket_stage").in("user_id", profiles.map((p) => p.id));
   if (rewardError) throw new Error("Could not load participant rewards.");
   return profiles.map((p) => ({ ...p, points: rewards.find((r) => r.user_id === p.id)?.points ?? 0, rank: rewards.find((r) => r.user_id === p.id)?.rank_name ?? "recruit" , bracketWins: rewards.find((r) => r.user_id === p.id)?.bracket_wins ?? 0, bracketStage: rewards.find((r) => r.user_id === p.id)?.bracket_stage ?? 0 })).sort((a, b) => b.points - a.points || a.display_name.localeCompare(b.display_name));
 });
+// Equips exactly one calling card per player. The server validates the card
+// against the public registry and ownership/unlock eligibility: standard
+// cards are entry-level choices open to every participant, while premium
+// tiers stay locked until a verified entitlement source exists. Passing
+// null restores the rank-default artwork.
+export const equipCallingCard = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ cardKey: z.string().max(64).nullable() }).parse(input))
+  .handler(async ({ data, context }) => {
+    if (data.cardKey !== null && !isEquippableCard(data.cardKey)) {
+      throw new Error("That calling card is not available to equip.");
+    }
+    const { error } = await context.supabase.from("profiles").update({ equipped_card_key: data.cardKey }).eq("id", context.userId);
+    if (error) throw new Error("Could not equip that calling card.");
+    return { equipped: data.cardKey };
+  });
 export const saveForgedAvatar = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
 .inputValidator((input: unknown) => z.object({ image: z.string().max(14000000).regex(/^data:image\/png;base64,[A-Za-z0-9+/=]+$/) }).parse(input))
 .handler(async ({ data, context }) => {

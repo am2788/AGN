@@ -1,0 +1,20 @@
+{
+  "scenario": "AGN Live Authentication Stress Test",
+  "config": {
+    "target_url_env": "XANO_AGN_LOGIN_URL",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    "static_payload": {
+      "email": "agn.test.alpha@outlook.com"
+    },
+    "password_env": "XANO_ALPHA_TEST_PASSWORD"
+  },
+  "instructions": {
+    "input_binding": "Use scripts/auth-stress-config.ts to resolve the password from XANO_ALPHA_TEST_PASSWORD. Send email and password as plain strings in a JSON request body. Reuse the resolved payload in every virtual-user loop; never generate random or base64 mock credentials.",
+    "target_binding": "XANO_AGN_LOGIN_URL must be the full published AGN authentication endpoint, not https://xano.io. Do not run against the marketing homepage or guess a workspace path.",
+    "expected_response": "Require HTTP 200 and a nonempty string in authToken, token, or auth_token. Never log passwords or returned tokens."
+  }
+}

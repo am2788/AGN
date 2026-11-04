@@ -39,6 +39,18 @@ Some optional features additionally require server-only credentials:
 for the schedule helper and avatar generation. Keep those unprefixed and secret.
 Database migrations in `drizzle/migrations` are not applied by the build.
 
+The updated frontend also includes payments, friends/messaging, profile themes,
+and Xano-backed server functions. These features require their corresponding
+backend schema and policies; importing this source does not apply migrations or
+verify those integrations. Xano can use a server-only `XANO_ORIGIN` override.
+
+Payments currently route through Lovable's connector gateway, not directly to
+Stripe. They require server-only `LOVABLE_API_KEY`, `STRIPE_SANDBOX_API_KEY` /
+`STRIPE_LIVE_API_KEY`, and `PAYMENTS_SANDBOX_WEBHOOK_SECRET` /
+`PAYMENTS_LIVE_WEBHOOK_SECRET` for the selected environment. The browser uses
+`VITE_PAYMENTS_CLIENT_TOKEN` for the publishable Stripe key only. Never place
+server credentials in a `VITE_` variable. Payment flows have not been verified.
+
 ## Built with
 
 - TanStack Start

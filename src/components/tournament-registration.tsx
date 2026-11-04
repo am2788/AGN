@@ -9,6 +9,8 @@ import { useAccountSession } from "./account-session";
 import { ARENA_LANES, ARENA_TITLES, formatUsd } from "@/lib/arena";
 import { tournamentQuote, tournamentRegistrationSchema, TOURNAMENT_AGE_NOTE, type PricingOption } from "@/lib/tournament-entry";
 import { registerTournament } from "@/lib/tournament-entry.functions";
+import { EntryCheckout } from "./entry-checkout";
+import { PAYMENT_STATUS_LABEL } from "@/lib/tournament-payments";
 
 export function TournamentRegistration() {
   const register = useServerFn(registerTournament);
@@ -44,13 +46,14 @@ export function TournamentRegistration() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild><Button className="mt-5 bg-crimson text-foreground hover:bg-crimson/80"><Trophy /> Tournament registration</Button></DialogTrigger>
         <DialogContent className="dark max-h-[90dvh] w-[calc(100%-2rem)] overflow-y-auto border-wager-line bg-vault-panel font-body text-foreground">
-          <DialogHeader><DialogTitle className="pr-6 font-display text-gold">Tournament registration</DialogTitle><DialogDescription>All ages · No payment taken · Entry is not confirmed until payment and tournament availability are enabled.</DialogDescription></DialogHeader>
+          <DialogHeader><DialogTitle className="pr-6 font-display text-gold">Tournament registration</DialogTitle><DialogDescription>All ages · Save your entry, then pay in full or in 8 weekly installments.</DialogDescription></DialogHeader>
           {saved ? <div role="status" className="space-y-3 py-4">
             <CheckCircle2 className="size-8 text-gold" />
             <h3 className="font-display text-lg text-gold">{saved.alreadyRegistered ? "Existing registration" : "Registration saved"}</h3>
             <p>{saved.registration.callsign} · {ARENA_TITLES[saved.registration.lane - 1]}</p>
             <p className="text-sm">{saved.registration.pricing_option === "franchise" ? "Season Franchise Pass" : "Flexible Weekly / Split Tier"} · {formatUsd(saved.registration.quoted_fee_cents)}</p>
-            <p className="text-xs text-muted-foreground">Payment not started. No seat, paid access, or wager permission has been issued.</p>
+            <p className="text-xs text-gold">{PAYMENT_STATUS_LABEL[saved.registration.payment_status] ?? saved.registration.payment_status}</p>
+            <EntryCheckout registrationId={saved.registration.id} pricingOption={saved.registration.pricing_option} paymentStatus={saved.registration.payment_status} />
             <Button asChild><Link to="/account">View my entries</Link></Button>
             <Button variant="outline" onClick={() => setSaved(null)}>Register another lane</Button>
           </div> : <form onSubmit={submit} className="space-y-4">
@@ -75,7 +78,7 @@ export function TournamentRegistration() {
             </dl>
             <label className="block text-xs text-gold" htmlFor="entry-callsign">Callsign</label>
             <input id="entry-callsign" value={callsign} onChange={(e) => setCallsign(e.target.value)} maxLength={24} disabled={busy} className="h-10 w-full rounded-sm border border-input bg-vault-bg px-3 text-sm" autoComplete="username" />
-            <label className="flex items-start gap-3 text-xs text-muted-foreground"><input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} disabled={busy} className="mt-0.5 accent-crimson" />I accept the AGN tournament terms. This saves my registration interest only and does not authorize a charge.</label>
+            <label className="flex items-start gap-3 text-xs text-muted-foreground"><input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} disabled={busy} className="mt-0.5 accent-crimson" />I accept the AGN tournament terms. Saving does not charge me; payment happens in the next step.</label>
             {error && <p role="alert" className="text-xs text-amber-alert">{error}</p>}
             {signedIn ? <Button type="submit" disabled={busy} className="w-full bg-crimson text-foreground hover:bg-crimson/80">{busy ? "Saving…" : "Save registration"}</Button> : <Button asChild className="w-full"><Link to="/auth">Sign in to save registration</Link></Button>}
           </form>}

@@ -64,6 +64,62 @@
       "when": 1793421802024,
       "tag": "0008_overchat_and_title_votes",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793540822084,
+      "tag": "0009_migration",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793648489348,
+      "tag": "0010_migration",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793763486552,
+      "tag": "0011_add_profile_theme_and_equipped_card",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793804954173,
+      "tag": "0012_friends_messaging_safety",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793806460578,
+      "tag": "0013_gold_default_theme",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793807767237,
+      "tag": "0014_tighten_open_read_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1793809768454,
+      "tag": "0015_agn_welcome_message",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793810042540,
+      "tag": "0016_warmer_agn_welcome",
+      "breakpoints": true
     }
   ]
 }

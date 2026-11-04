@@ -28,6 +28,18 @@ export const ARENA_TAGLINES = [
 export const LANE_CAPACITY = 6144;
 /** Players per bracket slot, in ARENA_LANES order: Teams 6, Solos 1, Zombies 01 solo 1, Zombies 02 squads 4, Fortnite 6, SF6 1. */
 export const LANE_TEAM_SIZES = [6, 1, 1, 4, 6, 1] as const;
+/** Every prize pool pays $100,000 per person: the solo winner, or each member of a winning team of any size. */
+export const PRIZE_PER_PERSON = 100_000;
+/** A winning payout is $100,000 for every person on the winning side, so the pool scales with roster size. */
+export function prizePoolFor(rosterSize: number): number {
+  return PRIZE_PER_PERSON * rosterSize;
+}
+/** Display figure for a roster of the given size. */
+export const prizePoolAmount = (rosterSize: number) => `$${prizePoolFor(rosterSize).toLocaleString("en-US")}`;
+/** Lane payout in ARENA_LANES order, derived from that lane's roster size. */
+export function lanePrizePool(index: number): number {
+  return prizePoolFor(LANE_TEAM_SIZES[index]!);
+}
 /** Bracket slots per lane: 6,144 players divided by team size. */
 export function laneSlotCapacity(index: number): number {
   return LANE_CAPACITY / LANE_TEAM_SIZES[index]!;

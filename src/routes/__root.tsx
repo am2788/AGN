@@ -16,6 +16,7 @@ import { AccountSession } from "@/components/account-session";
 import { ShopCartSync } from "@/components/shop-cart";
 import { supabase } from "@/integrations/supabase/client";
 import { AgnNavigation } from "@/components/agn-brand";
+import { applyTheme, isThemeKey, readStoredTheme } from "@/lib/theme";
 
 function NotFoundComponent() {
   return (
@@ -136,12 +137,32 @@ function RootComponent() {
       <AccountSession>
       <ShopCartSync />
       <AuthReturn />
+      <ThemeSync />
       <AgnNavigation />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       </AccountSession>
     </QueryClientProvider>
   );
+}
+
+// Applies the remembered appearance theme after hydration. Runs once on
+// mount and never reloads the page, so routes, sessions, form input and
+// playing media are untouched when the theme changes.
+function ThemeSync() {
+  useEffect(() => {
+    applyTheme(readStoredTheme());
+    // Signed-in members get their saved theme (Simple Gold for new sign-ups).
+    const load = () => supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) return;
+      const { data: row } = await supabase.from("profiles").select("theme_key").eq("id", data.user.id).maybeSingle();
+      if (row && isThemeKey(row.theme_key)) applyTheme(row.theme_key);
+    });
+    void load();
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => { if (event === "SIGNED_IN") void load(); });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+  return null;
 }
 
 function AuthReturn() {

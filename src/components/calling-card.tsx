@@ -19,7 +19,7 @@ export function CallingCard({
   points: number;
   fontKey?: keyof typeof FONT_STYLES;
   stat?: string;
-  artworkUrl?: string;
+  artworkUrl?: string | undefined;
   previewClan?: string | undefined;
   terminalPreview?: boolean;
 }) {

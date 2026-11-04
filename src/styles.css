@@ -512,6 +512,21 @@
 .firefight-video-loop { z-index: 20; pointer-events: none; }
 .firefight-ui-overlay { position: absolute; width: 100%; height: 100%; z-index: 30; padding: 20px; color: #00E5FF; text-shadow: 0 0 8px rgba(0, 229, 255, 0.6); display: flex; justify-content: space-between; align-items: center; font-family: "Space Mono", monospace; background: linear-gradient(90deg, color-mix(in oklab, var(--card-midnight) 60%, transparent), transparent); }
 @media (prefers-reduced-motion: reduce) { .firefight-video-loop { display: none; } }
+
+/* Premium motion lineup — static poster under a looping muted clip, neon-blue UI overlay */
+.premium-motion-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.premium-motion-cell { margin: 0; }
+.premium-motion-card { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; border: 1px solid color-mix(in oklab, var(--neon-blue) 15%, transparent); background: var(--card-midnight); }
+.premium-motion-poster, .premium-motion-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.premium-motion-poster { z-index: 10; }
+.premium-motion-video { z-index: 20; pointer-events: none; }
+.premium-motion-overlay { position: absolute; inset: 0; z-index: 30; display: flex; justify-content: space-between; align-items: center; padding: 12px; color: var(--neon-blue); font-family: "Space Mono", monospace; }
+.premium-motion-identity, .premium-motion-meter { padding: 8px 10px; border-radius: 6px; background: color-mix(in oklab, var(--card-midnight) 76%, transparent); backdrop-filter: blur(3px); }
+.premium-motion-identity { text-shadow: 0 0 8px color-mix(in oklab, var(--neon-blue) 60%, transparent); }
+.premium-motion-meter { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.premium-motion-status { color: color-mix(in oklab, var(--neon-blue) 70%, var(--muted-foreground)); }
+.premium-motion-level { color: var(--prestige-gold); text-shadow: 0 0 10px color-mix(in oklab, var(--prestige-gold) 40%, transparent), 0 1px 3px var(--card-midnight); }
+@media (prefers-reduced-motion: reduce) { .premium-motion-video { display: none; } }
 .arena-cover { aspect-ratio: 1 / 2.6; }
 .rank-ring { outline: 2px solid var(--rank-platinum); outline-offset: 4px; animation: rank-halo 3s ease-in-out infinite; }
 .rank-halo { outline: 3px double var(--rank-diamond); outline-offset: 6px; }
@@ -730,3 +745,83 @@
 .first-strike-card { border-color: color-mix(in oklab, var(--gold, var(--primary)) 60%, transparent); }
 @media (max-width: 800px) { .join-main, .overchat-grid { grid-template-columns: 1fr; } .overchat-messages { height: 340px; } }
 @media (prefers-reduced-motion: reduce) { .join-overlay, .media-pulse-video, .hardlock-video, .first-strike-card video { display: none; } }
+
+/* ===== Simple appearance themes =====
+ * The two Simple options from the two-theme brief. They only swap design
+ * tokens on shared components; the detailed presentation stays the default.
+ * Selectors cover both the document root and pages that wrap content in the
+ * .dark class, so the theme wins over the local dark token block.
+ */
+
+[data-theme="simple-gold"],
+[data-theme="simple-gold"] .dark {
+  --background: oklch(0.1362 0.0065 71.35); /* #0A0806 */
+  --foreground: oklch(0.9115 0.0243 85.79); /* #E9E1D0 */
+  --card: oklch(0.1932 0.0176 66.47); /* #1A130C */
+  --card-foreground: oklch(0.9115 0.0243 85.79);
+  --popover: oklch(0.1932 0.0176 66.47);
+  --popover-foreground: oklch(0.9115 0.0243 85.79);
+  --primary: oklch(0.7065 0.1297 81.41); /* #C9972F */
+  --primary-foreground: oklch(0.1362 0.0065 71.35);
+  --secondary: oklch(0.1932 0.0176 66.47);
+  --secondary-foreground: oklch(0.9115 0.0243 85.79);
+  --muted: oklch(0.1932 0.0176 66.47);
+  --muted-foreground: oklch(0.9115 0.0243 85.79 / 65%);
+  --accent: oklch(0.1932 0.0176 66.47);
+  --accent-foreground: oklch(0.8061 0.1365 84.89); /* #E8B84A */
+  --destructive: oklch(0.4975 0.1818 27.73); /* #B3211E */
+  --destructive-foreground: oklch(0.9115 0.0243 85.79);
+  --border: oklch(0.7065 0.1297 81.41 / 30%);
+  --input: oklch(0.7065 0.1297 81.41 / 35%);
+  --ring: oklch(0.8061 0.1365 84.89);
+
+  --obsidian-black: oklch(0.1362 0.0065 71.35);
+  --matte-charcoal: oklch(0.1932 0.0176 66.47);
+  --prestige-gold: oklch(0.7065 0.1297 81.41);
+  --neon-crimson: oklch(0.4975 0.1818 27.73);
+  --wager-line: oklch(0.4975 0.1818 27.73);
+}
+
+[data-theme="simple-neon"],
+[data-theme="simple-neon"] .dark {
+  --background: oklch(0.134 0.0051 262.32); /* #07080A */
+  --foreground: oklch(1 0 0); /* #FFFFFF */
+  --card: oklch(0.1687 0.0065 271.01 / 85%); /* #0E0F12 at 85% */
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0.1687 0.0065 271.01);
+  --popover-foreground: oklch(1 0 0);
+  --primary: oklch(0.5875 0.2236 24.89); /* #E3202F */
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.1687 0.0065 271.01);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.1687 0.0065 271.01);
+  --muted-foreground: oklch(1 0 0 / 60%);
+  --accent: oklch(0.3717 0.1415 25.06); /* #7A0C14 */
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.5875 0.2236 24.89);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.5875 0.2236 24.89 / 35%);
+  --input: oklch(0.5875 0.2236 24.89 / 40%);
+  --ring: oklch(0.5875 0.2236 24.89);
+
+  --obsidian-black: oklch(0.134 0.0051 262.32);
+  --matte-charcoal: oklch(0.1687 0.0065 271.01);
+  --neon-crimson: oklch(0.5875 0.2236 24.89);
+  --wager-line: oklch(0.5875 0.2236 24.89);
+  --prestige-gold: oklch(0.7392 0.0872 78.02); /* #C9A46A muted gold, prize labels only */
+  --font-display: "Orbitron", monospace; /* heavy geometric caps headings */
+}
+
+/* Neon section labels use // separators; panels get chamfered corners. */
+[data-theme="simple-neon"] .shell-panel-title > h2::before {
+  content: "// ";
+  color: var(--neon-crimson);
+}
+[data-theme="simple-neon"] .shell-panel-title,
+[data-theme="simple-neon"] .overchat-feed,
+[data-theme="simple-neon"] .overchat-vote {
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+}
+
+/* Equipped calling-card thumbnail beside OverChat messages (opted-in identities only). */
+.overchat-card-thumb { width: 84px; aspect-ratio: 21 / 9; object-fit: cover; border: 1px solid var(--wager-line); flex-shrink: 0; }

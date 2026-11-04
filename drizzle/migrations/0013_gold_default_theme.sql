@@ -1,0 +1,2 @@
+ALTER TABLE public.profiles ALTER COLUMN theme_key SET DEFAULT 'simple-gold';
+COMMENT ON COLUMN public.profiles.theme_key IS 'Site appearance theme: simple-gold (default for new members), detailed, or simple-neon. Free cosmetic preference, not point-gated.';

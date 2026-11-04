@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { bufferAt, videoCue, parseScore, INITIAL_MATCH, BROADCAST_BASELINE, CROWDFUND_BASELINES, THEATRE_GAMES, bracketFormatLabel, crowdfundBaselineLabel, hoverAudioState } from "@/lib/theatre";
+import { bufferAt, videoCue, parseScore, INITIAL_MATCH, BROADCAST_BASELINE, BRACKET_ROSTER_SIZES, THEATRE_GAMES, bracketFormatLabel, crowdfundBaselineLabel, hoverAudioState } from "@/lib/theatre";
+import { PRIZE_PER_PERSON, prizePoolFor } from "@/lib/arena";
 
 describe("Broadcast preview rules", () => {
   it("keeps title profiles separate from bracket-owned prize amounts", () => {
@@ -8,26 +9,32 @@ describe("Broadcast preview rules", () => {
       expect(profile).not.toHaveProperty("soloPool");
       expect(profile).not.toHaveProperty("teamPool");
     }
-    expect(CROWDFUND_BASELINES.solo).toBe(85000);
-    expect(CROWDFUND_BASELINES.team).toBe(600000);
+    expect(PRIZE_PER_PERSON).toBe(100000);
+    expect(prizePoolFor(BRACKET_ROSTER_SIZES.solo)).toBe(100000);
+    expect(prizePoolFor(BRACKET_ROSTER_SIZES.team)).toBe(600000);
   });
   it("starts the sample match at 5–3", () => {
     expect(INITIAL_MATCH.homeScore).toBe(5);
     expect(INITIAL_MATCH.awayScore).toBe(3);
   });
-  it("uses the supplied $600,000 6v6 baseline", () => {
-    expect(CROWDFUND_BASELINES.team).toBe(600000);
+  it("pays $100,000 to every person on the winning side", () => {
+    expect(prizePoolFor(1)).toBe(100000);
+    expect(prizePoolFor(2)).toBe(200000);
+    expect(prizePoolFor(4)).toBe(400000);
+    expect(prizePoolFor(6)).toBe(600000);
+    expect(prizePoolFor(5)).toBe(500000);
   });
-  it("uses the supplied $85,000 solo baseline", () => {
-    expect(CROWDFUND_BASELINES.solo).toBe(85000);
+  it("keeps team pools roster-sized rather than fixed", () => {
+    expect(prizePoolFor(3)).toBe(300000);
+    expect(prizePoolFor(8)).toBe(800000);
   });
   it("labels every prize pool amount as still counting", () => {
     expect(crowdfundBaselineLabel("team")).toBe("$600,000 And Counting");
-    expect(crowdfundBaselineLabel("solo")).toBe("$85,000 And Counting");
+    expect(crowdfundBaselineLabel("solo")).toBe("$100,000 And Counting");
   });
   it("shows the solo baseline on the sample 1v1 matchup without claiming live funding", () => {
     expect(BROADCAST_BASELINE.format).toBe("solo");
-    expect(BROADCAST_BASELINE.prizePool).toBe(85000);
+    expect(BROADCAST_BASELINE.prizePool).toBe(100000);
     expect(bracketFormatLabel(BROADCAST_BASELINE.format)).toBe("SOLO TACTICAL · 1v1");
     expect(BROADCAST_BASELINE.source).toBe("configured-baseline");
   });
