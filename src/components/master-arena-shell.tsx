@@ -18,7 +18,7 @@ const icons = [Crosshair, Trophy, Activity, CalendarDays, Swords, Medal, Radio, 
 
 export function MasterArenaShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
-  useEffect(() => { if (window.matchMedia("(max-width: 700px)").matches) setCollapsed(true); }, []);
+  useEffect(() => { if (window.matchMedia("(max-width: 899px)").matches) setCollapsed(true); }, []);
   const path = useRouterState({ select: (s) => s.location.pathname });
   const selected = ARENA_VIEWS.find((view) => path === `/arena${view.slug ? `/${view.slug}` : ""}`);
   return <div className={`dark arena-shell ${collapsed ? "shell-collapsed" : ""}`}>

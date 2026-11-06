@@ -61,7 +61,7 @@ below are requirements, not a claim that the integrations are activated.
   `0013_gold_default_theme.sql` sets the database default. Migrations have NOT been
   applied or verified against the connected backend. Root theme sync loads the
   saved profile theme on sign-in; authenticated end-to-end behavior remains unverified.
-- The shared mobile hook, Tailwind `md` breakpoint and narrow-screen CSS rule now
+- The shared mobile hook, Tailwind `md` breakpoint and primary narrow-screen CSS rules now
   switch at 900px for all themes. Hook boundary tests cover 899px and 900px.
   Full visual verification of all four skins remains blocked by the missing fourth skin.
 - Console/admin pages render signed-out gates. Private server functions use auth
