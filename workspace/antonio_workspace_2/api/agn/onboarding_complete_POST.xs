@@ -78,5 +78,5 @@ query "onboarding/complete" verb=POST {
     }
   }
 
-  response = {thread_id: $thread_id, theme_id: $theme_id}
+  response = {thread_id: $agn_onboard.thread_id, theme_id: $theme_id}
 }
