@@ -12,14 +12,14 @@ type ThemeState = {
 };
 type ThemePersistence = (theme: AppThemeId) => Promise<void>;
 let persistThemeOnServer: ThemePersistence | undefined;
-const isTheme = (value: unknown): value is AppThemeId =>
-  typeof value === "string" && (APP_THEME_IDS as readonly string[]).includes(value);
+const isTheme = (value: unknown): value is AppThemeId => typeof value === "string" && (APP_THEME_IDS as readonly string[]).includes(value);
 function applyTheme(theme: AppThemeId) {
   if (typeof document !== "undefined") document.documentElement.dataset.theme = theme;
 }
 export function configureThemePersistence(persistTheme: ThemePersistence | undefined) {
   persistThemeOnServer = persistTheme;
 }
+
 export const useThemeStore = create<ThemeState>()(persist(
   (set, get) => ({
     theme: DEFAULT_THEME,
@@ -32,18 +32,30 @@ export const useThemeStore = create<ThemeState>()(persist(
     },
     setTheme: async (theme) => {
       if (!isTheme(theme)) throw new Error("Unsupported AGN theme");
+      const previous = get().theme;
       applyTheme(theme);
       set({ theme });
       if (get().signedIn) {
-        if (!persistThemeOnServer) throw new Error("Theme server persistence is not configured");
-        await persistThemeOnServer(theme);
+        try {
+          if (!persistThemeOnServer) throw new Error("Theme server persistence is not configured");
+          await persistThemeOnServer(theme);
+        } catch (error) {
+          // Roll back the optimistic change if server persistence fails.
+          applyTheme(previous);
+          set({ theme: previous });
+          throw error;
+        }
       }
     },
   }),
   {
     name: STORAGE_KEY,
     partialize: (state) => ({ theme: state.theme, signedIn: false }) as ThemeState,
-    onRehydrateStorage: () => (state) => applyTheme(state?.theme ?? DEFAULT_THEME),
+    onRehydrateStorage: () => (state) => {
+      const theme = state && isTheme(state.theme) ? state.theme : DEFAULT_THEME;
+      if (state) state.theme = theme;
+      applyTheme(theme);
+    },
   },
 ));
 export const getTheme = () => useThemeStore.getState().theme;

@@ -4,10 +4,10 @@
   margin-inline: auto;
   isolation: isolate;
 }
-
 .agn-skin-stage__shell,
 .agn-skin-stage__debug {
   position: absolute;
+  z-index: 0;
   inset: 0;
   display: block;
   width: 100%;
@@ -16,11 +16,5 @@
   pointer-events: none;
   user-select: none;
 }
-
-.agn-skin-stage__shell { z-index: -1; }
-.agn-skin-stage__debug { z-index: 3; opacity: 0.45; }
-.agn-skin-stage__content { position: absolute; inset: 0; }
-
-@media (max-width: 899px) {
-  .agn-skin-stage { width: min(100%, calc(100svh * 9 / 16)) !important; }
-}
+.agn-skin-stage__debug { z-index: 2; opacity: .45; }
+.agn-skin-stage__content { position: absolute; z-index: 1; inset: 0; }

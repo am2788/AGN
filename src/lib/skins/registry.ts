@@ -7,10 +7,10 @@ export const SCREEN_IDS = [
   "mediadeck", "leaderboard", "ledger-personal", "ledger-admin", "hall-collapsed", "hall-open",
 ] as const;
 export type ScreenId = (typeof SCREEN_IDS)[number];
-
 export type Device = "desk" | "mob";
 export type Layer = "full" | "shell";
-export const SIMPLE_THEME_IDS = ["simple-gold", "simple-neon"] as const;
+
+export const SIMPLE_THEME_IDS = ["simple-gold", "simple-alt"] as const;
 export const APP_THEME_IDS = [
   ...SIMPLE_THEME_IDS,
   ...SKIN_IDS.map((skin) => `skin-${skin}` as const),
@@ -41,6 +41,15 @@ export function skinAspect(screen: ScreenId, device: Device): number {
   return screen === "overchat" ? 1 : 16 / 9;
 }
 
+export function shouldUse4k(
+  skin: SkinId,
+  screen: ScreenId,
+  device: Device,
+  dpr = typeof window === "undefined" ? 1 : window.devicePixelRatio,
+): boolean {
+  return device === "desk" && dpr >= 2 && Boolean(HI_RES_SCREENS[skin]?.has(screen));
+}
+
 function configuredCdnBase(): string {
   const base = import.meta.env?.VITE_SKINS_CDN_BASE as string | undefined;
   if (!base) throw new Error("VITE_SKINS_CDN_BASE is not configured");
@@ -57,22 +66,8 @@ export function skinAssetUrl(args: {
 }): string {
   const { skin, device, screen, layer } = args;
   const base = (args.cdnBase ?? configuredCdnBase()).replace(/\/$/, "");
-  const use4k = Boolean(
-    args.hiRes && device === "desk" && layer === "shell" && HI_RES_SCREENS[skin]?.has(screen),
-  );
-
-  // Hall artwork follows the supplied hall-desk-{state}-shell naming convention.
-  const filename = screen === "hall-collapsed" || screen === "hall-open"
-    ? `hall-${device}-${screen === "hall-collapsed" ? "collapsed" : "open"}-${layer}${use4k ? "-4k" : ""}.png`
-    : `${skin}-${device}-${screen}-${layer}${use4k ? "-4k" : ""}.png`;
+  const use4k = Boolean(args.hiRes && device === "desk" && layer === "shell" && HI_RES_SCREENS[skin]?.has(screen));
+  // Hall assets retain the same skin/device directory and use dedicated hall screen identifiers.
+  const filename = `${skin}-${device}-${screen}-${layer}${use4k ? "-4k" : ""}.png`;
   return `${base}/${skin}/${device}/${filename}`;
-}
-
-export function shouldUse4k(
-  skin: SkinId,
-  screen: ScreenId,
-  device: Device,
-  dpr = typeof window === "undefined" ? 1 : window.devicePixelRatio,
-): boolean {
-  return device === "desk" && dpr >= 2 && Boolean(HI_RES_SCREENS[skin]?.has(screen));
 }
