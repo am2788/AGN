@@ -93,7 +93,7 @@ export function XanoOnboarding({ signup = true }: { signup?: boolean }) {
   }
   return (
     <SkinScreen screen={signup ? (step === 0 ? "hall-collapsed" : "hall-open") : "signin"}>
-      <main className="mx-auto max-w-xl rounded border bg-background/95 p-6 text-foreground">
+      <main className="xano-onboarding mx-auto max-w-xl rounded border bg-background/95 p-6 text-foreground">
         <h1>{signup ? "Join Aether Gaming Networks" : "Sign in to AGN"}</h1>
         {signup && base && (
           <>
@@ -107,7 +107,7 @@ export function XanoOnboarding({ signup = true }: { signup?: boolean }) {
             />
             <video
               ref={loop}
-              hidden={complete}
+              hidden={complete || mediaError}
               src={`${base}/media/signup-loop-${mobile ? "mob" : "desk"}.mp4`}
               loop
               muted

@@ -843,3 +843,18 @@
 .theme-picker { display: flex; gap: .5rem; align-items: center; padding: .5rem 1rem; background: var(--background); color: var(--foreground); }
 .eq-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: .5rem; }
 .eq-controls label { display: grid; font-size: .75rem; gap: .25rem; }
+
+/* Native controls need explicit affordances after Tailwind's reset. */
+.xano-onboarding { display: grid; gap: 1rem; }
+.xano-onboarding h1 { font-size: 1.5rem; font-weight: 700; }
+.xano-onboarding form, .xano-onboarding fieldset { display: grid; gap: .75rem; }
+.xano-onboarding [hidden] { display: none; }
+.xano-onboarding label { display: grid; gap: .4rem; }
+.xano-onboarding input:not([type="checkbox"]) { width: 100%; padding: .65rem; border: 1px solid var(--border); border-radius: .25rem; background: var(--background); }
+.xano-onboarding button { padding: .6rem .9rem; border: 1px solid var(--border); border-radius: .25rem; margin: .25rem; }
+.xano-onboarding button:disabled { opacity: .5; }
+.xano-onboarding a { text-decoration: underline; text-underline-offset: .2rem; }
+.xano-onboarding video { width: 100%; max-height: 16rem; object-fit: contain; }
+.theme-picker { flex-wrap: wrap; font-size: .875rem; }
+.theme-picker select { padding: .4rem; border: 1px solid var(--border); border-radius: .25rem; }
+.xano-onboarding :is(button, input, a, select):focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
