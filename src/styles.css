@@ -2,6 +2,11 @@
 @source "../src";
 @import "tw-animate-css";
 
+/* Shared desktop/mobile boundary for every appearance theme. */
+@theme {
+  --breakpoint-md: 56.25rem; /* 900px */
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /*
@@ -477,7 +482,7 @@
     radial-gradient(ellipse 45% 70% at 75% 40%, color-mix(in oklab, var(--neon-blue) 18%, transparent), transparent),
     repeating-linear-gradient(0deg, transparent 0px, transparent 12px, color-mix(in oklab, var(--rank-platinum) 6%, transparent) 12px, color-mix(in oklab, var(--rank-platinum) 6%, transparent) 13px);
 }
-@media (max-width: 768px) {
+@media (width < 900px) {
   .calling-card { border-width: 1px; }
   .calling-card-showcase-stack { gap: 16px; }
   .calling-card-showcase-row { grid-template-columns: minmax(0, 1fr); gap: 8px; }

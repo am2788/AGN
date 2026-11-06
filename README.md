@@ -23,9 +23,15 @@ npm run dev
 
 ## Deploy to Vercel
 
-This repository uses the TanStack Start framework preset and Nitro's `vercel`
-preset. Vercel installs the Bun lockfile with `bun install --frozen-lockfile` and
-builds with `bun run build`.
+This repository uses explicit Vite plugins for tsconfig paths, Tailwind CSS,
+TanStack Start, Nitro, and React. Vercel installs the existing Bun lockfile with
+`bun install --frozen-lockfile` and builds with `npm run build`. Nitro detects
+Vercel automatically; only if detection fails, set `NITRO_PRESET=vercel`.
+The custom SSR error wrapper remains the server entry.
+
+Production tracks `main`; non-production branches and PRs use Preview. Do not
+merge or promote the deployment PR, or cut over domains, until the owner signs
+off. See [release readiness](RELEASE_READINESS.md) for outstanding checks.
 
 Configure these variables in Vercel for Preview and Production; do not commit
 `.env` files:
