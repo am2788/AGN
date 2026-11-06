@@ -61,6 +61,10 @@ query "auth/signup" verb=POST {
       }
     }
   
+    var $user_pathway {
+      value = ($chosen_pathway == "wagerer" ? "wagering" : $chosen_pathway)
+    }
+  
     // Insert new user record
     db.add user {
       enforce_hidden_fields = false
@@ -70,7 +74,7 @@ query "auth/signup" verb=POST {
         email               : $input.email
         password            : $input.password
         phone_number        : $input.phone_number
-        pathway             : $chosen_pathway
+        pathway             : $user_pathway
         device_id           : ($input.device_id ?? $input.hardware_fingerprint)
         hardware_fingerprint: ($input.hardware_fingerprint ?? $input.device_id)
         id_front_image      : $input.id_front_image

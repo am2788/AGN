@@ -36,7 +36,7 @@ function claim_first_strike {
   
     // Exclude free spectators and admin/owner accounts
     var $is_spectator {
-      value = ($buyer_profile != null && $buyer_profile.pathway == "spectator")
+      value = (($buyer_profile != null && $buyer_profile.pathway == "spectator") || ($buyer != null && $buyer.pathway == "spectator"))
     }
   
     var $is_eligible {

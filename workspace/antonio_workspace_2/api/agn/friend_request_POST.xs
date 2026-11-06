@@ -17,7 +17,7 @@ query "friend/request" verb=POST {
       error = "Cannot send a friend request to yourself."
     }
   
-    // Automatically seed AGN as first friend and inject welcome message
+    // Automatically seed AETHER as first friend and inject welcome message
     function.run ensure_agn_onboarding {
       input = {user_id: $auth.id}
     } as $caller_agn_onboard
@@ -32,6 +32,11 @@ query "friend/request" verb=POST {
       error_type = "notfound"
       error = "Recipient user not found."
     }
+  
+    // Ensure recipient also has AETHER initialized
+    function.run ensure_agn_onboarding {
+      input = {user_id: $input.recipient_id}
+    } as $recipient_agn_onboard
   
     // Check if friendship or request already exists
     db.query friendship {

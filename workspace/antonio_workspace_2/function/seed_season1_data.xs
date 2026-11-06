@@ -5,78 +5,73 @@ function seed_season1_data {
   }
 
   stack {
-    // Check if themes are already seeded
-    db.query app_themes {
-      return = {type: "count"}
-    } as $theme_count
+    // Seed core themes idempotently: simple-gold (default), skin-gold, skin-redneon, skin-blueneon, skin-cyber
+    var $core_themes {
+      value = [
+        {
+          theme_id  : "simple-gold"
+          kind      : "simple"
+          label     : "Simple Gold"
+          enabled   : true
+          is_default: true
+          sort      : 1
+        }
+        {
+          theme_id  : "skin-gold"
+          kind      : "skin"
+          label     : "Skin Gold"
+          enabled   : true
+          is_default: false
+          sort      : 2
+        }
+        {
+          theme_id  : "skin-redneon"
+          kind      : "skin"
+          label     : "Skin Red Neon"
+          enabled   : true
+          is_default: false
+          sort      : 3
+        }
+        {
+          theme_id  : "skin-blueneon"
+          kind      : "skin"
+          label     : "Skin Blue Neon"
+          enabled   : true
+          is_default: false
+          sort      : 4
+        }
+        {
+          theme_id  : "skin-cyber"
+          kind      : "skin"
+          label     : "Skin Cyber"
+          enabled   : true
+          is_default: false
+          sort      : 5
+        }
+      ]
+    }
   
-    conditional {
-      if ($theme_count == 0) {
-        db.add app_themes {
-          data = {
-            theme_id  : "simple-gold"
-            kind      : "simple"
-            label     : "Simple Gold"
-            enabled   : true
-            is_default: true
-            sort      : 1
-          }
-        } as $t1
+    foreach ($core_themes) {
+      each as $theme_item {
+        db.query app_themes {
+          where = $db.app_themes.theme_id == $theme_item.theme_id
+          return = {type: "single"}
+        } as $found_theme
       
-        db.add app_themes {
-          data = {
-            theme_id  : "simple-alt"
-            kind      : "simple"
-            label     : "Simple Alt"
-            enabled   : true
-            is_default: false
-            sort      : 2
+        conditional {
+          if ($found_theme == null) {
+            db.add app_themes {
+              data = {
+                theme_id  : $theme_item.theme_id
+                kind      : $theme_item.kind
+                label     : $theme_item.label
+                enabled   : $theme_item.enabled
+                is_default: $theme_item.is_default
+                sort      : $theme_item.sort
+              }
+            } as $created_theme
           }
-        } as $t2
-      
-        db.add app_themes {
-          data = {
-            theme_id  : "skin-gold"
-            kind      : "skin"
-            label     : "Skin Gold"
-            enabled   : true
-            is_default: false
-            sort      : 3
-          }
-        } as $t3
-      
-        db.add app_themes {
-          data = {
-            theme_id  : "skin-redneon"
-            kind      : "skin"
-            label     : "Skin Red Neon"
-            enabled   : true
-            is_default: false
-            sort      : 4
-          }
-        } as $t4
-      
-        db.add app_themes {
-          data = {
-            theme_id  : "skin-blueneon"
-            kind      : "skin"
-            label     : "Skin Blue Neon"
-            enabled   : true
-            is_default: false
-            sort      : 5
-          }
-        } as $t5
-      
-        db.add app_themes {
-          data = {
-            theme_id  : "skin-cyber"
-            kind      : "skin"
-            label     : "Skin Cyber"
-            enabled   : true
-            is_default: false
-            sort      : 6
-          }
-        } as $t6
+        }
       }
     }
   

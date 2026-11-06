@@ -22,7 +22,7 @@ function ensure_agn_onboarding {
         db.add user {
           data = {
             id                  : 1
-            name                : "AGN (Aether)"
+            name                : "AETHER"
             email               : "aether@agn.gg"
             role                : "admin"
             calling_card        : "first_strike"
@@ -36,13 +36,58 @@ function ensure_agn_onboarding {
         db.add profile {
           data = {
             user_id     : 1
-            handle      : "agn"
-            display_name: "AGN (Aether)"
+            handle      : "aether"
+            display_name: "AETHER"
             pathway     : "competitor"
             age_band    : "18+"
             theme_id    : "skin-gold"
           }
         } as $created_agn_profile
+      }
+    
+      else {
+        conditional {
+          if ($agn_user.name != "AETHER") {
+            db.edit user {
+              field_name = "id"
+              field_value = 1
+              data = {name: "AETHER"}
+            } as $updated_agn_user
+          }
+        }
+      }
+    }
+  
+    // Ensure AETHER profile exists
+    db.query profile {
+      where = $db.profile.user_id == $agn_id
+      return = {type: "single"}
+    } as $agn_prof
+  
+    conditional {
+      if ($agn_prof == null) {
+        db.add profile {
+          data = {
+            user_id     : 1
+            handle      : "aether"
+            display_name: "AETHER"
+            pathway     : "competitor"
+            age_band    : "18+"
+            theme_id    : "skin-gold"
+          }
+        } as $created_prof
+      }
+    
+      else {
+        conditional {
+          if ($agn_prof.display_name != "AETHER") {
+            db.edit profile {
+              field_name = "id"
+              field_value = $agn_prof.id
+              data = {display_name: "AETHER"}
+            } as $updated_prof
+          }
+        }
       }
     }
   
@@ -104,7 +149,7 @@ function ensure_agn_onboarding {
         db.add dm_thread {
           data = {
             is_group           : false
-            name               : "AGN Official Welcome"
+            name               : "AETHER Official Welcome"
             is_official_welcome: true
           }
         } as $new_thread

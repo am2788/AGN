@@ -7,6 +7,17 @@ query "me/theme" verb=GET {
   }
 
   stack {
+    // Ensure core themes are initialized
+    db.query app_themes {
+      return = {type: "count"}
+    } as $theme_count
+  
+    conditional {
+      if ($theme_count == 0) {
+        function.run seed_season1_data as $seeded_themes
+      }
+    }
+  
     // Retrieve caller profile
     db.query profile {
       where = $db.profile.user_id == $auth.id

@@ -9,6 +9,17 @@ query "me/theme" verb=PATCH {
   }
 
   stack {
+    // Ensure core themes are initialized
+    db.query app_themes {
+      return = {type: "count"}
+    } as $theme_count
+  
+    conditional {
+      if ($theme_count == 0) {
+        function.run seed_season1_data as $seeded_themes
+      }
+    }
+  
     // Verify theme exists and is currently enabled
     db.query app_themes {
       where = $db.app_themes.theme_id == $input.theme_id && $db.app_themes.enabled == true
