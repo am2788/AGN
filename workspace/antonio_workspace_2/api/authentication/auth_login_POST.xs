@@ -1,4 +1,4 @@
-// Login and retrieve an authentication token
+// Login, issue HttpOnly cookie-secured session token, and return authenticated profile
 query "auth/login" verb=POST {
   api_group = "Authentication"
 
@@ -42,6 +42,12 @@ query "auth/login" verb=POST {
       error = "Invalid credentials"
     }
   
+    // Fetch user profile
+    db.query profile {
+      where = $db.profile.user_id == $user.id
+      return = {type: "single"}
+    } as $user_profile
+  
     // Generate authenticated session token
     security.create_auth_token {
       table = "user"
@@ -49,6 +55,12 @@ query "auth/login" verb=POST {
       expiration = 86400
       id = $user.id
     } as $authToken
+  
+    // Issue HttpOnly cookie-secured session token header
+    util.set_header {
+      value = "Set-Cookie: token=" ~ $authToken ~ "; HttpOnly; Secure; SameSite=Lax; Path=/"
+      duplicates = "replace"
+    }
   }
 
   response = {
@@ -62,5 +74,6 @@ query "auth/login" verb=POST {
         email: $user.email
       }
       ```
+    profile   : $user_profile
   }
 }

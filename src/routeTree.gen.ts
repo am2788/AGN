@@ -14,12 +14,16 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ArenaRouteImport } from './routes/arena'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as GatewayRouteImport } from './routes/gateway'
 import { Route as HubRouteImport } from './routes/hub'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as LegacyAuthRouteImport } from './routes/legacy-auth'
+import { Route as OverchatRouteImport } from './routes/overchat'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as TheatreRouteImport } from './routes/theatre'
 import { Route as WagersRouteImport } from './routes/wagers'
 import { Route as WelcomeRouteImport } from './routes/welcome'
@@ -27,6 +31,7 @@ import { Route as ApiAvatarForgeRouteImport } from './routes/api/avatar-forge'
 import { Route as ArenaIndexRouteImport } from './routes/arena.index'
 import { Route as ArenaSplatRouteImport } from './routes/arena.$'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
+import { Route as MeThemeRouteImport } from './routes/me.theme'
 import { Route as ProductHandleRouteImport } from './routes/product.$handle'
 import { Route as ConsoleAssetsAssetRouteImport } from './routes/console.assets.$asset'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -56,6 +61,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FriendsRoute = FriendsRouteImport.update({
   id: '/friends',
   path: '/friends',
@@ -81,9 +91,24 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LegacyAuthRoute = LegacyAuthRouteImport.update({
+  id: '/legacy-auth',
+  path: '/legacy-auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OverchatRoute = OverchatRouteImport.update({
+  id: '/overchat',
+  path: '/overchat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TheatreRoute = TheatreRouteImport.update({
@@ -121,6 +146,11 @@ const ConsoleIndexRoute = ConsoleIndexRouteImport.update({
   path: '/console/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MeThemeRoute = MeThemeRouteImport.update({
+  id: '/me/theme',
+  path: '/me/theme',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductHandleRoute = ProductHandleRouteImport.update({
   id: '/product/$handle',
   path: '/product/$handle',
@@ -144,17 +174,22 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/arena': typeof ArenaRouteWithChildren
   '/auth': typeof AuthRoute
+  '/dashboard': typeof DashboardRoute
   '/friends': typeof FriendsRoute
   '/gateway': typeof GatewayRoute
   '/hub': typeof HubRoute
   '/join': typeof JoinRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/legacy-auth': typeof LegacyAuthRoute
+  '/overchat': typeof OverchatRoute
   '/shop': typeof ShopRoute
+  '/signup': typeof SignupRoute
   '/theatre': typeof TheatreRoute
   '/wagers': typeof WagersRoute
   '/welcome': typeof WelcomeRoute
   '/api/avatar-forge': typeof ApiAvatarForgeRoute
   '/arena/$': typeof ArenaSplatRoute
+  '/me/theme': typeof MeThemeRoute
   '/product/$handle': typeof ProductHandleRoute
   '/arena/': typeof ArenaIndexRoute
   '/console/': typeof ConsoleIndexRoute
@@ -166,17 +201,22 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/dashboard': typeof DashboardRoute
   '/friends': typeof FriendsRoute
   '/gateway': typeof GatewayRoute
   '/hub': typeof HubRoute
   '/join': typeof JoinRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/legacy-auth': typeof LegacyAuthRoute
+  '/overchat': typeof OverchatRoute
   '/shop': typeof ShopRoute
+  '/signup': typeof SignupRoute
   '/theatre': typeof TheatreRoute
   '/wagers': typeof WagersRoute
   '/welcome': typeof WelcomeRoute
   '/api/avatar-forge': typeof ApiAvatarForgeRoute
   '/arena/$': typeof ArenaSplatRoute
+  '/me/theme': typeof MeThemeRoute
   '/product/$handle': typeof ProductHandleRoute
   '/arena': typeof ArenaIndexRoute
   '/console': typeof ConsoleIndexRoute
@@ -190,17 +230,22 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/arena': typeof ArenaRouteWithChildren
   '/auth': typeof AuthRoute
+  '/dashboard': typeof DashboardRoute
   '/friends': typeof FriendsRoute
   '/gateway': typeof GatewayRoute
   '/hub': typeof HubRoute
   '/join': typeof JoinRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/legacy-auth': typeof LegacyAuthRoute
+  '/overchat': typeof OverchatRoute
   '/shop': typeof ShopRoute
+  '/signup': typeof SignupRoute
   '/theatre': typeof TheatreRoute
   '/wagers': typeof WagersRoute
   '/welcome': typeof WelcomeRoute
   '/api/avatar-forge': typeof ApiAvatarForgeRoute
   '/arena/$': typeof ArenaSplatRoute
+  '/me/theme': typeof MeThemeRoute
   '/product/$handle': typeof ProductHandleRoute
   '/arena/': typeof ArenaIndexRoute
   '/console/': typeof ConsoleIndexRoute
@@ -215,17 +260,22 @@ export interface FileRouteTypes {
     | '/admin'
     | '/arena'
     | '/auth'
+    | '/dashboard'
     | '/friends'
     | '/gateway'
     | '/hub'
     | '/join'
     | '/leaderboard'
+    | '/legacy-auth'
+    | '/overchat'
     | '/shop'
+    | '/signup'
     | '/theatre'
     | '/wagers'
     | '/welcome'
     | '/api/avatar-forge'
     | '/arena/$'
+    | '/me/theme'
     | '/product/$handle'
     | '/arena/'
     | '/console/'
@@ -237,17 +287,22 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/auth'
+    | '/dashboard'
     | '/friends'
     | '/gateway'
     | '/hub'
     | '/join'
     | '/leaderboard'
+    | '/legacy-auth'
+    | '/overchat'
     | '/shop'
+    | '/signup'
     | '/theatre'
     | '/wagers'
     | '/welcome'
     | '/api/avatar-forge'
     | '/arena/$'
+    | '/me/theme'
     | '/product/$handle'
     | '/arena'
     | '/console'
@@ -260,17 +315,22 @@ export interface FileRouteTypes {
     | '/admin'
     | '/arena'
     | '/auth'
+    | '/dashboard'
     | '/friends'
     | '/gateway'
     | '/hub'
     | '/join'
     | '/leaderboard'
+    | '/legacy-auth'
+    | '/overchat'
     | '/shop'
+    | '/signup'
     | '/theatre'
     | '/wagers'
     | '/welcome'
     | '/api/avatar-forge'
     | '/arena/$'
+    | '/me/theme'
     | '/product/$handle'
     | '/arena/'
     | '/console/'
@@ -284,16 +344,21 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ArenaRoute: typeof ArenaRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DashboardRoute: typeof DashboardRoute
   FriendsRoute: typeof FriendsRoute
   GatewayRoute: typeof GatewayRoute
   HubRoute: typeof HubRoute
   JoinRoute: typeof JoinRoute
   LeaderboardRoute: typeof LeaderboardRoute
+  LegacyAuthRoute: typeof LegacyAuthRoute
+  OverchatRoute: typeof OverchatRoute
   ShopRoute: typeof ShopRoute
+  SignupRoute: typeof SignupRoute
   TheatreRoute: typeof TheatreRoute
   WagersRoute: typeof WagersRoute
   WelcomeRoute: typeof WelcomeRoute
   ApiAvatarForgeRoute: typeof ApiAvatarForgeRoute
+  MeThemeRoute: typeof MeThemeRoute
   ProductHandleRoute: typeof ProductHandleRoute
   ConsoleIndexRoute: typeof ConsoleIndexRoute
   ConsoleAssetsAssetRoute: typeof ConsoleAssetsAssetRoute
@@ -337,6 +402,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/friends': {
       id: '/friends'
       path: '/friends'
@@ -372,11 +444,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legacy-auth': {
+      id: '/legacy-auth'
+      path: '/legacy-auth'
+      fullPath: '/legacy-auth'
+      preLoaderRoute: typeof LegacyAuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/overchat': {
+      id: '/overchat'
+      path: '/overchat'
+      fullPath: '/overchat'
+      preLoaderRoute: typeof OverchatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop': {
       id: '/shop'
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/theatre': {
@@ -428,6 +521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/me/theme': {
+      id: '/me/theme'
+      path: '/me/theme'
+      fullPath: '/me/theme'
+      preLoaderRoute: typeof MeThemeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/product/$handle': {
       id: '/product/$handle'
       path: '/product/$handle'
@@ -470,16 +570,21 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ArenaRoute: ArenaRouteWithChildren,
   AuthRoute: AuthRoute,
+  DashboardRoute: DashboardRoute,
   FriendsRoute: FriendsRoute,
   GatewayRoute: GatewayRoute,
   HubRoute: HubRoute,
   JoinRoute: JoinRoute,
   LeaderboardRoute: LeaderboardRoute,
+  LegacyAuthRoute: LegacyAuthRoute,
+  OverchatRoute: OverchatRoute,
   ShopRoute: ShopRoute,
+  SignupRoute: SignupRoute,
   TheatreRoute: TheatreRoute,
   WagersRoute: WagersRoute,
   WelcomeRoute: WelcomeRoute,
   ApiAvatarForgeRoute: ApiAvatarForgeRoute,
+  MeThemeRoute: MeThemeRoute,
   ProductHandleRoute: ProductHandleRoute,
   ConsoleIndexRoute: ConsoleIndexRoute,
   ConsoleAssetsAssetRoute: ConsoleAssetsAssetRoute,

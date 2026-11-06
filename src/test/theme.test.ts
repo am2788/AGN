@@ -15,8 +15,15 @@ describe("appearance themes", () => {
     document.documentElement.removeAttribute("data-theme");
   });
 
-  it("offers exactly the detailed default plus the two Simple options", () => {
-    expect(THEME_KEYS).toEqual(["detailed", "simple-gold", "simple-neon"]);
+  it("offers exactly six supported themes", () => {
+    expect(THEME_KEYS).toEqual([
+      "simple-gold",
+      "simple-neon",
+      "skin-gold",
+      "skin-redneon",
+      "skin-blueneon",
+      "skin-cyber",
+    ]);
   });
 
   it("accepts only known theme keys in the profile schema", () => {
@@ -42,13 +49,13 @@ describe("appearance themes", () => {
     expect(isThemeKey(42)).toBe(false);
   });
 
-  it("applies a Simple theme to the document root without removing it for detailed", () => {
+  it("applies each theme as a root attribute", () => {
     applyTheme("simple-neon");
     expect(document.documentElement.getAttribute("data-theme")).toBe("simple-neon");
     expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe("simple-neon");
-    applyTheme("detailed");
-    expect(document.documentElement.hasAttribute("data-theme")).toBe(false);
-    expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe("detailed");
+    applyTheme("simple-gold");
+    expect(document.documentElement.getAttribute("data-theme")).toBe("simple-gold");
+    expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe("simple-gold");
   });
 
   it("preserves the route, mounted form and half-typed input across every available theme", () => {
@@ -82,11 +89,11 @@ describe("appearance themes", () => {
     }
   });
 
-  it("reads back the stored theme and falls back to detailed", () => {
-    expect(readStoredTheme()).toBe("detailed");
+  it("reads back the stored theme and falls back to Simple Gold", () => {
+    expect(readStoredTheme()).toBe("simple-gold");
     window.localStorage.setItem(THEME_STORAGE_KEY, "simple-gold");
     expect(readStoredTheme()).toBe("simple-gold");
     window.localStorage.setItem(THEME_STORAGE_KEY, "bogus");
-    expect(readStoredTheme()).toBe("detailed");
+    expect(readStoredTheme()).toBe("simple-gold");
   });
 });

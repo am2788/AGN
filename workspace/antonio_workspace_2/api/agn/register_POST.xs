@@ -160,6 +160,31 @@ query register verb=POST {
       }
     } as $wallet
   
+    // Provision profile record
+    var $user_handle {
+      value = ($input.meta_handle ?? ("player_" ~ $new_user.id))
+    }
+  
+    var $display_name {
+      value = ($input.name ?? ("Player " ~ $new_user.id))
+    }
+  
+    db.add profile {
+      data = {
+        user_id     : $new_user.id
+        handle      : $user_handle
+        display_name: $display_name
+        pathway     : ($input.pathway ?? "spectator")
+        age_band    : "unknown"
+        theme_id    : "simple-gold"
+      }
+    } as $profile
+  
+    // Pre-provision AETHER as default first friend with official welcome message
+    function.run ensure_agn_onboarding {
+      input = {user_id: $new_user.id}
+    } as $onboarding
+  
     // Queue Twilio automated notification log if phone number was provided
     conditional {
       if ($input.phone_number != null) {
@@ -181,6 +206,12 @@ query register verb=POST {
       expiration = 86400
       id = $new_user.id
     } as $authToken
+  
+    // Issue HttpOnly cookie-secured session token header
+    util.set_header {
+      value = "Set-Cookie: token=" ~ $authToken ~ "; HttpOnly; Secure; SameSite=Lax; Path=/"
+      duplicates = "replace"
+    }
   }
 
   response = {

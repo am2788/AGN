@@ -830,3 +830,16 @@
 
 /* Equipped calling-card thumbnail beside OverChat messages (opted-in identities only). */
 .overchat-card-thumb { width: 84px; aspect-ratio: 21 / 9; object-fit: cover; border: 1px solid var(--wager-line); flex-shrink: 0; }
+
+/* Skin artwork changes presentation only; live controls remain shared DOM. */
+[data-theme="skin-gold"] { --primary: var(--gold); --ring: var(--gold); }
+[data-theme="skin-redneon"] { --primary: var(--crimson); --ring: var(--crimson); }
+[data-theme="skin-blueneon"] { --primary: var(--neon-blue); --ring: var(--neon-blue); }
+[data-theme="skin-cyber"] { --primary: var(--rank-diamond); --ring: var(--rank-diamond); }
+.skin-stage { position: relative; isolation: isolate; width: 100%; }
+.skin-stage-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; z-index: -1; }
+.skin-stage-content { position: relative; min-height: 100%; }
+.skin-hotspot { position: absolute; }
+.theme-picker { display: flex; gap: .5rem; align-items: center; padding: .5rem 1rem; background: var(--background); color: var(--foreground); }
+.eq-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: .5rem; }
+.eq-controls label { display: grid; font-size: .75rem; gap: .25rem; }
