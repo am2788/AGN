@@ -1,0 +1,26 @@
+.agn-skin-stage {
+  position: relative;
+  overflow: hidden;
+  margin-inline: auto;
+  isolation: isolate;
+}
+
+.agn-skin-stage__shell,
+.agn-skin-stage__debug {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.agn-skin-stage__shell { z-index: -1; }
+.agn-skin-stage__debug { z-index: 3; opacity: 0.45; }
+.agn-skin-stage__content { position: absolute; inset: 0; }
+
+@media (max-width: 899px) {
+  .agn-skin-stage { width: min(100%, calc(100svh * 9 / 16)) !important; }
+}

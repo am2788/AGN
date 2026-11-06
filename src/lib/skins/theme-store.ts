@@ -1,65 +1,49 @@
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { APP_THEME_IDS, DEFAULT_THEME, type AppThemeId } from "./registry";
 
 const STORAGE_KEY = "agn-theme";
-type ThemeListener = (theme: AppThemeId) => void;
+type ThemeState = {
+  theme: AppThemeId;
+  signedIn: boolean;
+  setTheme: (theme: AppThemeId) => Promise<void>;
+  setSignedIn: (signedIn: boolean) => void;
+  hydrateFromServer: (theme: AppThemeId) => void;
+};
 type ThemePersistence = (theme: AppThemeId) => Promise<void>;
-
-let activeTheme: AppThemeId = DEFAULT_THEME;
-let persistToServer: ThemePersistence | undefined;
-const listeners = new Set<ThemeListener>();
-
-function isTheme(value: unknown): value is AppThemeId {
-  return typeof value === "string" && (APP_THEME_IDS as readonly string[]).includes(value);
-}
-
-function applyTheme(theme: AppThemeId): void {
+let persistThemeOnServer: ThemePersistence | undefined;
+const isTheme = (value: unknown): value is AppThemeId =>
+  typeof value === "string" && (APP_THEME_IDS as readonly string[]).includes(value);
+function applyTheme(theme: AppThemeId) {
   if (typeof document !== "undefined") document.documentElement.dataset.theme = theme;
-  for (const listener of listeners) listener(theme);
 }
-
-export function getTheme(): AppThemeId {
-  return activeTheme;
+export function configureThemePersistence(persistTheme: ThemePersistence | undefined) {
+  persistThemeOnServer = persistTheme;
 }
-
-export function subscribeTheme(listener: ThemeListener): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
-
-/** Configure this with the app's authenticated PATCH /me/theme server function. */
-export function configureThemePersistence(persist: ThemePersistence | undefined): void {
-  persistToServer = persist;
-}
-
-/** Hydrate once at application startup; theme changes do not touch router state. */
-export function hydrateTheme(signedIn = false): AppThemeId {
-  let theme = DEFAULT_THEME;
-  if (typeof window !== "undefined" && !signedIn) {
-    try {
-      const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (isTheme(stored)) theme = stored;
-    } catch {
-      // Storage can be unavailable in private browsing; keep the default theme.
-    }
-  }
-  activeTheme = theme;
-  applyTheme(theme);
-  return theme;
-}
-
-/** Apply immediately so an active form remains mounted, then persist in the background. */
-export function setTheme(theme: AppThemeId): Promise<void> {
-  if (!isTheme(theme)) return Promise.reject(new Error("Unsupported AGN theme"));
-  activeTheme = theme;
-  applyTheme(theme);
-
-  if (persistToServer) return persistToServer(theme);
-  if (typeof window !== "undefined") {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, theme);
-    } catch {
-      // Theme remains active for this page even if local persistence is blocked.
-    }
-  }
-  return Promise.resolve();
-}
+export const useThemeStore = create<ThemeState>()(persist(
+  (set, get) => ({
+    theme: DEFAULT_THEME,
+    signedIn: false,
+    setSignedIn: (signedIn) => set({ signedIn }),
+    hydrateFromServer: (theme) => {
+      if (!isTheme(theme)) return;
+      applyTheme(theme);
+      set({ theme, signedIn: true });
+    },
+    setTheme: async (theme) => {
+      if (!isTheme(theme)) throw new Error("Unsupported AGN theme");
+      applyTheme(theme);
+      set({ theme });
+      if (get().signedIn) {
+        if (!persistThemeOnServer) throw new Error("Theme server persistence is not configured");
+        await persistThemeOnServer(theme);
+      }
+    },
+  }),
+  {
+    name: STORAGE_KEY,
+    partialize: (state) => ({ theme: state.theme, signedIn: false }) as ThemeState,
+    onRehydrateStorage: () => (state) => applyTheme(state?.theme ?? DEFAULT_THEME),
+  },
+));
+export const getTheme = () => useThemeStore.getState().theme;
