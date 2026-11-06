@@ -1,4 +1,4 @@
-// Signup and retrieve an authentication token
+// Signup, create profile, and issue HttpOnly cookie-secured session token
 query "auth/signup" verb=POST {
   api_group = "Authentication"
 
@@ -68,6 +68,31 @@ query "auth/signup" verb=POST {
       }
     } as $wallet
   
+    // Provision authoritative profile record with default theme simple-gold
+    var $user_handle {
+      value = ("player_" ~ $user.id)
+    }
+  
+    var $display_name {
+      value = ($input.name ?? ("Player " ~ $user.id))
+    }
+  
+    db.add profile {
+      data = {
+        user_id     : $user.id
+        handle      : $user_handle
+        display_name: $display_name
+        pathway     : "spectator"
+        age_band    : "unknown"
+        theme_id    : "simple-gold"
+      }
+    } as $profile
+  
+    // Pre-provision AETHER as the user's default first friend with official welcome message
+    function.run ensure_agn_onboarding {
+      input = {user_id: $user.id}
+    } as $agn_onboarding
+  
     // Generate authenticated session token
     security.create_auth_token {
       table = "user"
@@ -75,6 +100,12 @@ query "auth/signup" verb=POST {
       expiration = 86400
       id = $user.id
     } as $authToken
+  
+    // Issue HttpOnly cookie-secured session token header
+    util.set_header {
+      value = "Set-Cookie: token=" ~ $authToken ~ "; HttpOnly; Secure; SameSite=Lax; Path=/"
+      duplicates = "replace"
+    }
   }
 
   response = {
@@ -88,5 +119,6 @@ query "auth/signup" verb=POST {
         email: $user.email
       }
       ```
+    profile   : $profile
   }
 }

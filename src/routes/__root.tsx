@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
+  useRouterState,
   Link,
   createRootRouteWithContext,
   useRouter,
@@ -16,6 +17,9 @@ import { AccountSession } from "@/components/account-session";
 import { ShopCartSync } from "@/components/shop-cart";
 import { supabase } from "@/integrations/supabase/client";
 import { AgnNavigation } from "@/components/agn-brand";
+import { SkinScreen } from "@/components/skin/SkinScreen";
+import { ThemePicker } from "@/components/skin/ThemePicker";
+import type { ScreenId } from "@/lib/skins/registry";
 import { applyTheme, isThemeKey, readStoredTheme } from "@/lib/theme";
 
 function NotFoundComponent() {
@@ -86,10 +90,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#00E5FF" },
       { name: "apple-mobile-web-app-title", content: "AGN" },
       { title: "AGN — Aether Gaming Networks | EWL Groups Inc." },
-      { name: "description", content: "AGN (Aether Gaming Networks) competitive arena and Wagerer Vault, an EWL Groups Inc. property." },
+      {
+        name: "description",
+        content:
+          "AGN (Aether Gaming Networks) competitive arena and Wagerer Vault, an EWL Groups Inc. property.",
+      },
       { name: "author", content: "EWL Groups Inc." },
       { property: "og:title", content: "AGN — Aether Gaming Networks | EWL Groups Inc." },
-      { property: "og:description", content: "AGN (Aether Gaming Networks) competitive arena and Wagerer Vault, an EWL Groups Inc. property." },
+      {
+        property: "og:description",
+        content:
+          "AGN (Aether Gaming Networks) competitive arena and Wagerer Vault, an EWL Groups Inc. property.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -131,16 +143,39 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const screenMap: Record<string, ScreenId> = {
+    "/": "home",
+    "/auth": "signin",
+    "/signup": "signup",
+    "/join": "signup",
+    "/shop": "merch",
+    "/wagers": "wager",
+    "/theatre": "live",
+    "/overchat": "overchat",
+    "/friends": "overchat",
+    "/account": "dashboard",
+    "/dashboard": "dashboard",
+    "/admin": "admin",
+    "/gateway": "gateway1",
+    "/leaderboard": "leaderboard",
+    "/arena/tournaments": "upcoming",
+    "/arena/settings": "dashboard",
+  };
+  const screen = screenMap[pathname] ?? "home";
 
   return (
     <QueryClientProvider client={queryClient}>
       <AccountSession>
-      <ShopCartSync />
-      <AuthReturn />
-      <ThemeSync />
-      <AgnNavigation />
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+        <ShopCartSync />
+        <AuthReturn />
+        <ThemeSync />
+        <AgnNavigation />
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <ThemePicker />
+        <SkinScreen screen={screen}>
+          <Outlet />
+        </SkinScreen>
       </AccountSession>
     </QueryClientProvider>
   );
@@ -152,15 +187,26 @@ function RootComponent() {
 function ThemeSync() {
   useEffect(() => {
     applyTheme(readStoredTheme());
-    // Signed-in members get their saved theme (Simple Gold for new sign-ups).
-    const load = () => supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) return;
-      const { data: row } = await supabase.from("profiles").select("theme_key").eq("id", data.user.id).maybeSingle();
-      if (row && isThemeKey(row.theme_key)) applyTheme(row.theme_key);
-    });
+    let active = true;
+    const load = async () => {
+      try {
+        const response = await fetch("/me/theme", {
+          credentials: "same-origin",
+          cache: "no-store",
+        });
+        if (!response.ok) return;
+        const row = (await response.json()) as { theme?: unknown };
+        if (active && isThemeKey(row.theme)) applyTheme(row.theme);
+      } catch {
+        /* Saved local appearance remains available offline. */
+      }
+    };
     void load();
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => { if (event === "SIGNED_IN") void load(); });
-    return () => sub.subscription.unsubscribe();
+    window.addEventListener("agn-xano-session", load);
+    return () => {
+      active = false;
+      window.removeEventListener("agn-xano-session", load);
+    };
   }, []);
   return null;
 }

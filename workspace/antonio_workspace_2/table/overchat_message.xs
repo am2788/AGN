@@ -28,7 +28,12 @@ table overchat_message {
     // Moderation approval flag
     bool is_moderated?=true
   
-    // External integrated streaming platform origin (Meta, Twitch, YouTube, or native AGN)
+    // Originating integrated stream or platform source
+    enum origin?=agn {
+      values = ["agn", "twitch", "youtube", "x", "meta", "discord"]
+    }
+  
+    // External integrated streaming platform origin (legacy field)
     enum external_source?=agn {
       values = ["agn", "meta", "twitch", "youtube"]
     }
@@ -37,6 +42,7 @@ table overchat_message {
   index = [
     {type: "primary", field: [{name: "id"}]}
     {type: "btree", field: [{name: "channel"}]}
+    {type: "btree", field: [{name: "origin"}]}
     {type: "btree", field: [{name: "created_at", op: "desc"}]}
   ]
 }

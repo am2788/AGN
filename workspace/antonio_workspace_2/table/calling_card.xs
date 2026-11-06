@@ -22,11 +22,18 @@ table calling_card {
   
     // Short muted video mp4 loop URL for premium motion cards
     text? video_url filters=trim
+  
+    // Whether this card is a premium motion card
+    bool is_premium?
+  
+    // Whether card is publicly visible in unverified catalogs
+    bool is_public?=true
   }
 
   index = [
     {type: "primary", field: [{name: "id"}]}
     {type: "btree|unique", field: [{name: "key"}]}
     {type: "btree", field: [{name: "tier"}]}
+    {type: "btree", field: [{name: "is_public"}]}
   ]
 }

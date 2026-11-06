@@ -1,65 +1,77 @@
-// Cast a democratic vote on the Season 2 title ballot
+// Cast a democratic vote on the Season 2 title ballot with hard server-time cutoff
 query ballot_vote verb=POST {
   api_group = "AGN"
   auth = "user"
 
   input {
     // Ballot identifier
-    int ballot_id {
+    int? ballot_id? {
       table = "season_ballot"
     }
   
     // Selected game candidate option identifier
-    int option_id {
-      table = "season_ballot_option"
-    }
+    int option_id
+  
+    // Competitive season number
+    int season?=2
   }
 
   stack {
-    // Verify ballot is active
-    db.get season_ballot {
-      field_name = "id"
-      field_value = $input.ballot_id
-    } as $ballot
-  
-    precondition ($ballot != null && $ballot.is_active) {
-      error_type = "inputerror"
-      error = "This ballot is no longer active."
+    // Enforce hard server-time cutoff at 2026-12-21T00:00:00Z (timestamp: 1797811200000 ms)
+    var $cutoff_timestamp {
+      value = 1797811200000
     }
   
-    // Check if user has already voted on this ballot
-    db.query season_ballot_vote {
-      where = $db.season_ballot_vote.ballot_id == $input.ballot_id && $db.season_ballot_vote.user_id == $auth.id
+    precondition (now < $cutoff_timestamp) {
+      error_type = "inputerror"
+      error = "Voting for Season 2 closed on 2026-12-21T00:00:00Z."
+    }
+  
+    // Check if user has already voted for this season
+    db.query ballot_votes {
+      where = $db.ballot_votes.user_id == $auth.id && $db.ballot_votes.season == $input.season
       return = {type: "exists"}
-    } as $has_voted
+    } as $has_season_voted
   
-    precondition (!$has_voted) {
+    precondition (!$has_season_voted) {
       error_type = "inputerror"
-      error = "You have already cast your vote on this ballot."
+      error = "You have already cast your vote for this season."
     }
   
-    // Record the user vote
-    db.add season_ballot_vote {
+    // Record vote in season ballot_votes table
+    db.add ballot_votes {
       data = {
-        ballot_id: $input.ballot_id
-        option_id: $input.option_id
         user_id  : $auth.id
+        season   : $input.season
+        option_id: $input.option_id
       }
-    } as $vote
+    } as $recorded_vote
   
-    // Atomically increment vote count on chosen option
-    db.increment season_ballot_option {
-      where = $db.season_ballot_option.id == $input.option_id
+    // Atomically increment vote count on chosen ballot option
+    db.increment ballot_options {
+      where = $db.ballot_options.id == $input.option_id
       field_name = "vote_count"
       value = 1
-    } as $updated_option
+    } as $updated_opt
   
-    // Atomically increment total ballot votes
-    db.increment season_ballot {
-      where = $db.season_ballot.id == $input.ballot_id
-      field_name = "total_votes"
-      value = 1
-    } as $updated_ballot
+    // Maintain legacy tables if ballot_id provided
+    conditional {
+      if ($input.ballot_id != null) {
+        db.add season_ballot_vote {
+          data = {
+            ballot_id: $input.ballot_id
+            option_id: $input.option_id
+            user_id  : $auth.id
+          }
+        } as $legacy_vote
+      
+        db.increment season_ballot_option {
+          where = $db.season_ballot_option.id == $input.option_id
+          field_name = "vote_count"
+          value = 1
+        } as $legacy_opt
+      }
+    }
   }
 
   response = {

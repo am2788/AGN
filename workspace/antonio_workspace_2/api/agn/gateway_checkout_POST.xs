@@ -82,6 +82,15 @@ query gateway_checkout verb=POST {
         var.update $created_entry {
           value = $entry
         }
+      
+        // Atomically claim First Strike calling card for first verified tournament participant
+        function.run claim_first_strike {
+          input = {
+            user_id   : $auth.id
+            category  : "season_1"
+            payment_id: $txn_ref
+          }
+        } as $first_strike_claim
       }
     }
   }

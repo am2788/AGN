@@ -63,3 +63,9 @@ server credentials in a `VITE_` variable. Payment flows have not been verified.
 - TypeScript
 - React
 - Tailwind CSS
+
+## Master integration draft
+
+See [MASTER_INTEGRATION.md](MASTER_INTEGRATION.md) for implemented frontend/session
+features, actual environment names, backend contracts and explicit release blockers.
+Do not promote this integration branch as a completed backend migration.
