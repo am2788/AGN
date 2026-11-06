@@ -26,6 +26,12 @@ query "auth/signup" verb=POST {
   
     // Back scan image URL of government-issued ID
     text? id_back_image? filters=trim
+  
+    // Chosen pathway: competitor, wagerer, spectator
+    text? pathway? filters=trim|lower
+  
+    // Desired unique handle/slug
+    text? handle? filters=trim|lower
   }
 
   stack {
@@ -42,6 +48,19 @@ query "auth/signup" verb=POST {
       error = "This account is already in use."
     }
   
+    // Validate pathway selection
+    var $chosen_pathway {
+      value = "spectator"
+    }
+  
+    conditional {
+      if ($input.pathway == "competitor" || $input.pathway == "wagerer" || $input.pathway == "spectator") {
+        var.update $chosen_pathway {
+          value = $input.pathway
+        }
+      }
+    }
+  
     // Insert new user record
     db.add user {
       enforce_hidden_fields = false
@@ -51,6 +70,7 @@ query "auth/signup" verb=POST {
         email               : $input.email
         password            : $input.password
         phone_number        : $input.phone_number
+        pathway             : $chosen_pathway
         device_id           : ($input.device_id ?? $input.hardware_fingerprint)
         hardware_fingerprint: ($input.hardware_fingerprint ?? $input.device_id)
         id_front_image      : $input.id_front_image
@@ -70,11 +90,11 @@ query "auth/signup" verb=POST {
   
     // Provision authoritative profile record with default theme simple-gold
     var $user_handle {
-      value = ("player_" ~ $user.id)
+      value = ($input.handle ?? ("player_" ~ ($user.id|to_text)))
     }
   
     var $display_name {
-      value = ($input.name ?? ("Player " ~ $user.id))
+      value = ($input.name ?? ("Player " ~ ($user.id|to_text)))
     }
   
     db.add profile {
@@ -82,7 +102,7 @@ query "auth/signup" verb=POST {
         user_id     : $user.id
         handle      : $user_handle
         display_name: $display_name
-        pathway     : "spectator"
+        pathway     : $chosen_pathway
         age_band    : "unknown"
         theme_id    : "simple-gold"
       }

@@ -62,13 +62,7 @@ query register verb=POST {
       error = "An account with this email is already registered."
     }
   
-    // Check if the solo First Strike bonus has already been claimed
-    db.query user {
-      where = $db.user.has_first_strike == true
-      return = {type: "exists"}
-    } as $first_strike_claimed
-  
-    // Determine initial calling card and First Strike status
+    // First Strike is exclusively awarded upon verified bracket slot purchase via claim_first_strike
     var $is_first_strike {
       value = false
     }
@@ -77,19 +71,8 @@ query register verb=POST {
       value = "starter"
     }
   
-    // Award First Strike motion card if this is the first competitor
     conditional {
-      if (!$first_strike_claimed && $input.pathway == "competitor") {
-        var.update $is_first_strike {
-          value = true
-        }
-      
-        var.update $calling_card {
-          value = "first_strike"
-        }
-      }
-    
-      elseif ($input.pathway == "wagering") {
+      if ($input.pathway == "wagering") {
         var.update $calling_card {
           value = "premium_wagerer"
         }

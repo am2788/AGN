@@ -83,10 +83,21 @@ query gateway_checkout verb=POST {
           value = $entry
         }
       
+        // Check if user is associated with a team for this entry
+        db.query team_member {
+          where = $db.team_member.user_id == $auth.id
+          return = {type: "single"}
+        } as $user_team
+      
+        var $team_id {
+          value = ($user_team.team_id ?? null)
+        }
+      
         // Atomically claim First Strike calling card for first verified tournament participant
         function.run claim_first_strike {
           input = {
             user_id   : $auth.id
+            team_id   : $team_id
             category  : "season_1"
             payment_id: $txn_ref
           }

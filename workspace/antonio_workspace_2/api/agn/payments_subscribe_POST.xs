@@ -73,6 +73,16 @@ query payments_subscribe verb=POST {
       field_value = $entry.id
       data = {payment_status: "active_plan"}
     } as $updated_entry
+  
+    // Atomically claim First Strike award for first verified tournament participant
+    function.run claim_first_strike {
+      input = {
+        user_id   : $auth.id
+        team_id   : $entry.team_id
+        category  : "season_1"
+        payment_id: ("PLAN-" ~ ($plan.id|to_text) ~ "-" ~ ($entry.id|to_text))
+      }
+    } as $first_strike_claim
   }
 
   response = {

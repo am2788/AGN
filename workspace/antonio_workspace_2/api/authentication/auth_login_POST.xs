@@ -48,6 +48,27 @@ query "auth/login" verb=POST {
       return = {type: "single"}
     } as $user_profile
   
+    // Auto-provision profile with default simple-gold if missing
+    conditional {
+      if ($user_profile == null) {
+        db.add profile {
+          data = {
+            user_id     : $user.id
+            handle      : ("player_" ~ ($user.id|to_text))
+            display_name: ($user.name ?? ("Player " ~ ($user.id|to_text)))
+            pathway     : "spectator"
+            age_band    : "unknown"
+            theme_id    : "simple-gold"
+          }
+        } as $user_profile
+      }
+    }
+  
+    // Ensure AGN friendship and welcome message are initialized
+    function.run ensure_agn_onboarding {
+      input = {user_id: $user.id}
+    } as $agn_onboarding
+  
     // Generate authenticated session token
     security.create_auth_token {
       table = "user"

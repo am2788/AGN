@@ -34,6 +34,14 @@ query "me/theme" verb=GET {
           value = $saved_theme
         }
       }
+    
+      else {
+        // Fetch default simple-gold theme record
+        db.query app_themes {
+          where = $db.app_themes.theme_id == "simple-gold"
+          return = {type: "single"}
+        } as $theme_record
+      }
     }
   }
 
@@ -41,5 +49,6 @@ query "me/theme" verb=GET {
     theme_id      : $active_theme
     saved_theme_id: $saved_theme
     is_fallback   : ($active_theme != $saved_theme)
+    theme         : $theme_record
   }
 }

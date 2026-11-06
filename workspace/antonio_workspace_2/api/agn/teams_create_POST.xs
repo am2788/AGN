@@ -17,22 +17,9 @@ query teams_create verb=POST {
   }
 
   stack {
-    // Check if the team First Strike bonus has already been claimed
-    db.query team {
-      where = $db.team.has_first_strike == true
-      return = {type: "exists"}
-    } as $team_first_strike_claimed
-  
+    // First Strike bonus is awarded exclusively upon verified slot purchase via claim_first_strike
     var $is_team_first_strike {
       value = false
-    }
-  
-    conditional {
-      if (!$team_first_strike_claimed) {
-        var.update $is_team_first_strike {
-          value = true
-        }
-      }
     }
   
     // Generate unique team invite code

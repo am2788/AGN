@@ -6,7 +6,7 @@ table app_themes {
     int id
     timestamp created_at?=now
   
-    // Theme identifier key: simple-gold, simple-neon, skin-gold, skin-redneon, skin-blueneon, skin-cyber
+    // Theme identifier key: simple-gold, simple-alt, skin-gold, skin-redneon, skin-blueneon, skin-cyber
     text theme_id filters=trim
   
     // Theme kind: simple or skin
@@ -20,7 +20,7 @@ table app_themes {
     // Whether theme is enabled for selection
     bool enabled?=true
   
-    // Whether this is the default theme (skin-gold is the sole true default)
+    // Whether this is the default theme (simple-gold is the default)
     bool is_default?
   
     // Display sorting order
