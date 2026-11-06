@@ -27,6 +27,9 @@ table jackpot_vault {
     enum status?=active {
       values = ["active", "claimed", "closed"]
     }
+  
+    // Progressive jackpot running total
+    decimal running_total?
   }
 
   index = [

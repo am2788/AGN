@@ -1,4 +1,4 @@
-// Discovery for the 6 continuously running tournaments under the 6,144-player standard
+// Discovery for the 6 continuously running tournaments under the 6,144-player standard joining regional segments
 query tournaments verb=GET {
   api_group = "AGN"
 
@@ -6,11 +6,34 @@ query tournaments verb=GET {
   }
 
   stack {
-    // Retrieve all active tournaments
+    // Ensure initial Season 1 tournament and regional segment data is seeded
+    db.query tournaments {
+      return = {type: "count"}
+    } as $tournaments_count
+  
+    conditional {
+      if ($tournaments_count == 0) {
+        function.run seed_season1_data as $seeded
+      }
+    }
+  
+    // Retrieve Season 1 tournament lanes
+    db.query tournaments {
+      sort = {lane_order: "asc"}
+      return = {type: "list"}
+    } as $season1_tournaments
+  
+    // Retrieve regional scheduled segments
+    db.query region_segments {
+      sort = {id: "asc"}
+      return = {type: "list"}
+    } as $region_segments
+  
+    // Maintain backwards compatibility with legacy tournament table
     db.query tournament {
       sort = {id: "asc"}
       return = {type: "list"}
-    } as $tournaments
+    } as $legacy_tournaments
   }
 
   response = {
@@ -36,6 +59,8 @@ query tournaments verb=GET {
         }
       }
       ```
-    tournaments      : $tournaments
+    tournaments      : $season1_tournaments
+    region_segments  : $region_segments
+    legacy           : $legacy_tournaments
   }
 }
