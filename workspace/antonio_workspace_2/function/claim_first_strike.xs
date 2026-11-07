@@ -43,6 +43,12 @@ function claim_first_strike {
       value = ($buyer != null && $buyer.role != "admin" && !$is_spectator)
     }
   
+    // Strictly block free spectators and admin accounts from triggering or claiming First Strike entries
+    precondition ($is_eligible) {
+      error_type = "accessdenied"
+      error = "Free spectators and admin accounts are strictly blocked from triggering or claiming First Strike entries."
+    }
+  
     var $claimed {
       value = false
     }
@@ -52,78 +58,94 @@ function claim_first_strike {
       value = ($input.team_id != null ? "team" : ($input.category == "team" ? "team" : "solo"))
     }
   
-    conditional {
-      if ($is_eligible) {
-        db.transaction {
-          stack {
-            // Check singleton claim status for category (solo or team)
-            db.query first_strike {
-              where = $db.first_strike.category == $target_category
+    db.transaction {
+      stack {
+        // Check singleton claim status for category (solo or team)
+        db.query first_strike {
+          where = $db.first_strike.category == $target_category
+          return = {type: "single"}
+        } as $existing_claim
+      
+        conditional {
+          if ($existing_claim == null) {
+            db.add first_strike {
+              data = {
+                claimed_by_user_id: $input.user_id
+                claimed_by_team_id: $input.team_id
+                category          : $target_category
+                claimed_at        : "now"
+                payment_id        : $input.payment_id
+              }
+            } as $new_claim
+          
+            // Grant permanent First Strike badge to user
+            db.edit user {
+              field_name = "id"
+              field_value = $input.user_id
+              data = {has_first_strike: true}
+            } as $updated_user
+          
+            // If claimed on behalf of a team, grant First Strike badge to team
+            conditional {
+              if ($input.team_id != null) {
+                db.edit team {
+                  field_name = "id"
+                  field_value = $input.team_id
+                  data = {has_first_strike: true}
+                } as $updated_team
+              }
+            }
+          
+            // Unlock First Strike 1-of-1 Legendary Calling Card into user cosmetic inventory
+            db.query calling_card {
+              where = $db.calling_card.key == "first_strike"
               return = {type: "single"}
-            } as $existing_claim
+            } as $fs_card
           
             conditional {
-              if ($existing_claim == null) {
-                db.add first_strike {
-                  data = {
-                    claimed_by_user_id: $input.user_id
-                    claimed_by_team_id: $input.team_id
-                    category          : $target_category
-                    claimed_at        : "now"
-                    payment_id        : $input.payment_id
-                  }
-                } as $new_claim
-              
-                // Grant permanent First Strike badge to user
-                db.edit user {
-                  field_name = "id"
-                  field_value = $input.user_id
-                  data = {has_first_strike: true}
-                } as $updated_user
-              
-                // If claimed on behalf of a team, grant First Strike badge to team
-                conditional {
-                  if ($input.team_id != null) {
-                    db.edit team {
-                      field_name = "id"
-                      field_value = $input.team_id
-                      data = {has_first_strike: true}
-                    } as $updated_team
-                  }
-                }
-              
-                // Unlock First Strike 1-of-1 Legendary Calling Card into user cosmetic inventory
-                db.query calling_card {
-                  where = $db.calling_card.key == "first_strike"
-                  return = {type: "single"}
-                } as $fs_card
+              if ($fs_card != null) {
+                db.query user_cosmetic {
+                  where = $db.user_cosmetic.user_id == $input.user_id && $db.user_cosmetic.cosmetic_type == "calling_card" && $db.user_cosmetic.cosmetic_id == $fs_card.id
+                  return = {type: "exists"}
+                } as $has_fs_cosmetic
               
                 conditional {
-                  if ($fs_card != null) {
-                    db.query user_cosmetic {
-                      where = $db.user_cosmetic.user_id == $input.user_id && $db.user_cosmetic.cosmetic_type == "calling_card" && $db.user_cosmetic.cosmetic_id == $fs_card.id
-                      return = {type: "exists"}
-                    } as $has_fs_cosmetic
-                  
-                    conditional {
-                      if (!$has_fs_cosmetic) {
-                        db.add user_cosmetic {
-                          data = {
-                            user_id      : $input.user_id
-                            cosmetic_type: "calling_card"
-                            cosmetic_id  : $fs_card.id
-                            unlocked_at  : "now"
-                          }
-                        } as $unlocked_fs_card
+                  if (!$has_fs_cosmetic) {
+                    db.add user_cosmetic {
+                      data = {
+                        user_id      : $input.user_id
+                        cosmetic_type: "calling_card"
+                        cosmetic_id  : $fs_card.id
+                        unlocked_at  : "now"
                       }
-                    }
+                    } as $unlocked_fs_card
                   }
                 }
               
-                var.update $claimed {
-                  value = true
+                // Also populate user_cosmetics table
+                db.query user_cosmetics {
+                  where = $db.user_cosmetics.user_id == $input.user_id && $db.user_cosmetics.cosmetic_type == "card" && $db.user_cosmetics.asset_id == $fs_card.id && $db.user_cosmetics.tier == "legendary"
+                  return = {type: "exists"}
+                } as $has_fs_cosmetics
+              
+                conditional {
+                  if (!$has_fs_cosmetics) {
+                    db.add user_cosmetics {
+                      data = {
+                        user_id      : $input.user_id
+                        cosmetic_type: "card"
+                        asset_id     : $fs_card.id
+                        tier         : "legendary"
+                        unlocked_at  : "now"
+                      }
+                    } as $unlocked_fs_cosmetics
+                  }
                 }
               }
+            }
+          
+            var.update $claimed {
+              value = true
             }
           }
         }

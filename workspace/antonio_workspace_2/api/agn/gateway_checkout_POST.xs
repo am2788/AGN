@@ -93,15 +93,29 @@ query gateway_checkout verb=POST {
           value = ($user_team.team_id ?? null)
         }
       
-        // Atomically claim First Strike calling card for first verified tournament participant
-        function.run claim_first_strike {
-          input = {
-            user_id   : $auth.id
-            team_id   : $team_id
-            category  : "season_1"
-            payment_id: $txn_ref
+        // Retrieve buyer profile to verify pathway
+        db.query profile {
+          where = $db.profile.user_id == $auth.id
+          return = {type: "single"}
+        } as $buyer_profile
+      
+        var $can_trigger_fs {
+          value = ($auth.role != "admin" && ($buyer_profile == null || $buyer_profile.pathway != "spectator"))
+        }
+      
+        // Atomically claim First Strike calling card for first verified tournament participant (spectators and admins blocked)
+        conditional {
+          if ($can_trigger_fs) {
+            function.run claim_first_strike {
+              input = {
+                user_id   : $auth.id
+                team_id   : $team_id
+                category  : "season_1"
+                payment_id: $txn_ref
+              }
+            } as $first_strike_claim
           }
-        } as $first_strike_claim
+        }
       }
     }
   }

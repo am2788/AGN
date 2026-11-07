@@ -53,30 +53,23 @@ query "dm/send" verb=POST {
       error = "You are not a member of this conversation."
     }
   
-    // Retrieve caller's authoritative age band (missing treated as unknown, never 18+)
-    db.query profile {
-      where = $db.profile.user_id == $auth.id
-      return = {type: "single"}
-    } as $caller_profile
-  
-    var $caller_age {
-      value = ($caller_profile.age_band ?? "unknown")
-    }
-  
-    // Fetch all other participants in the thread
+    // Retrieve all participants in the thread to enforce strict age-band isolation
     db.query dm_thread_member {
-      where = $db.dm_thread_member.thread_id == $input.thread_id && $db.dm_thread_member.user_id != $auth.id
+      where = $db.dm_thread_member.thread_id == $input.thread_id
       return = {type: "list"}
-    } as $other_members
+    } as $all_members
   
-    var $age_violation {
+    var $has_adult_participant {
       value = false
     }
   
-    // Evaluate cross-age boundaries: 18+ cannot message 13-17 or unknown accounts
-    foreach ($other_members) {
+    var $has_minor_or_unknown_participant {
+      value = false
+    }
+  
+    // Evaluate all thread participants (excluding official system user 1)
+    foreach ($all_members) {
       each as $member {
-        // Exclude system official account (user_id 1) from age band restrictions
         conditional {
           if ($member.user_id != 1) {
             db.query profile {
@@ -89,14 +82,14 @@ query "dm/send" verb=POST {
             }
           
             conditional {
-              if ($caller_age == "18+" && $member_age != "18+") {
-                var.update $age_violation {
+              if ($member_age == "18+") {
+                var.update $has_adult_participant {
                   value = true
                 }
               }
             
-              elseif ($caller_age != "18+" && $member_age == "18+") {
-                var.update $age_violation {
+              else {
+                var.update $has_minor_or_unknown_participant {
                   value = true
                 }
               }
@@ -106,9 +99,10 @@ query "dm/send" verb=POST {
       }
     }
   
-    precondition (!$age_violation) {
+    // Block execution with 403 Forbidden error immediately if participants bounce between 18+ and 13-17 or unknown
+    precondition (!($has_adult_participant && $has_minor_or_unknown_participant)) {
       error_type = "accessdenied"
-      error = "Direct messaging between 18+ and under-18 or unverified accounts is strictly prohibited by safety policy."
+      error = "Direct messaging between 18+ and 13-17 or unknown profiles is strictly prohibited by safety policy."
     }
   
     // Insert new message

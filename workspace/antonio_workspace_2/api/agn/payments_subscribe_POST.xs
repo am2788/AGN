@@ -127,15 +127,29 @@ query payments_subscribe verb=POST {
       data = {payment_status: $entry_payment_status}
     } as $updated_entry
   
-    // Atomically claim First Strike award for first verified tournament participant
-    function.run claim_first_strike {
-      input = {
-        user_id   : $auth.id
-        team_id   : $entry.team_id
-        category  : "season_1"
-        payment_id: ("PLAN-" ~ ($plan.id|to_text) ~ "-" ~ ($entry.id|to_text))
+    // Retrieve buyer profile to verify pathway
+    db.query profile {
+      where = $db.profile.user_id == $auth.id
+      return = {type: "single"}
+    } as $buyer_profile
+  
+    var $can_trigger_fs {
+      value = ($auth.role != "admin" && ($buyer_profile == null || $buyer_profile.pathway != "spectator"))
+    }
+  
+    // Atomically claim First Strike award for first verified tournament participant (spectators and admins blocked)
+    conditional {
+      if ($can_trigger_fs) {
+        function.run claim_first_strike {
+          input = {
+            user_id   : $auth.id
+            team_id   : $entry.team_id
+            category  : "season_1"
+            payment_id: ("PLAN-" ~ ($plan.id|to_text) ~ "-" ~ ($entry.id|to_text))
+          }
+        } as $first_strike_claim
       }
-    } as $first_strike_claim
+    }
   }
 
   response = {

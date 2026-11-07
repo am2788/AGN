@@ -19,6 +19,21 @@ table user_equipped {
   
     // Currently equipped medal ID
     int? medal_id
+  
+    // Equipped emblem image URL
+    text equipped_emblem_url?
+  
+    // Equipped medal slot 1 image URL
+    text equipped_medal_1?
+  
+    // Equipped medal slot 2 image URL
+    text equipped_medal_2?
+  
+    // Equipped medal slot 3 image URL
+    text equipped_medal_3?
+  
+    // Equipped calling card image or animation URL
+    text equipped_card_url?
   }
 
   index = [
