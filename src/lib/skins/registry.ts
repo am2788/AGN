@@ -56,6 +56,7 @@ function configuredCdnBase(): string {
   return base.replace(/\/$/, "");
 }
 
+/** Resolve CDN-only assets. Hall artwork uses the separately published /hall/ path. */
 export function skinAssetUrl(args: {
   skin: SkinId;
   device: Device;
@@ -67,7 +68,9 @@ export function skinAssetUrl(args: {
   const { skin, device, screen, layer } = args;
   const base = (args.cdnBase ?? configuredCdnBase()).replace(/\/$/, "");
   const use4k = Boolean(args.hiRes && device === "desk" && layer === "shell" && HI_RES_SCREENS[skin]?.has(screen));
-  // Hall assets retain the same skin/device directory and use dedicated hall screen identifiers.
-  const filename = `${skin}-${device}-${screen}-${layer}${use4k ? "-4k" : ""}.png`;
-  return `${base}/${skin}/${device}/${filename}`;
+  if (screen === "hall-collapsed" || screen === "hall-open") {
+    const state = screen === "hall-collapsed" ? "collapsed" : "open";
+    return `${base}/hall/${device}/hall-${device}-${state}-${layer}${use4k ? "-4k" : ""}.png`;
+  }
+  return `${base}/${skin}/${device}/${skin}-${device}-${screen}-${layer}${use4k ? "-4k" : ""}.png`;
 }
