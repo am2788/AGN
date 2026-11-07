@@ -56,12 +56,18 @@ query wagers_place verb=POST {
       value = $input.amount * 0.04
     }
   
-    // Inject 4% cut into the active Progressive Jackpot Vault
+    // Inject 4% cut into the active Progressive Jackpot Vault (both current amount and running total)
     db.increment jackpot_vault {
       where = $db.jackpot_vault.status == "active"
       field_name = "current_vault_amount"
       value = $jackpot_cut
     } as $updated_jackpot
+  
+    db.increment jackpot_vault {
+      where = $db.jackpot_vault.status == "active"
+      field_name = "running_total"
+      value = $jackpot_cut
+    } as $updated_jackpot_running
   
     // Deduct stake from bettor wallet
     var $new_balance {

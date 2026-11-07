@@ -111,120 +111,143 @@ function seed_season1_data {
       }
     }
   
-    // Check if tournaments are seeded
-    db.query tournaments {
-      return = {type: "count"}
-    } as $tournaments_count
+    // Seed or update the 6 Season 1 launch title tournaments
+    var $launch_tournaments {
+      value = [
+        {
+          title            : "Tekken 8"
+          format           : "solo_1v1"
+          lane_order       : 1
+          capacity         : 6144
+          roster_size      : 1
+          start_date       : "2026-11-23"
+          prize_base       : 100000
+          prize_per_player : 100000
+          plan_full_price  : 375
+          plan_weekly_price: 50
+          plan_weeks       : 8
+          status           : "open"
+        }
+        {
+          title            : "Street Fighter 6"
+          format           : "solo_1v1"
+          lane_order       : 2
+          capacity         : 6144
+          roster_size      : 1
+          start_date       : "2026-11-23"
+          prize_base       : 100000
+          prize_per_player : 100000
+          plan_full_price  : 375
+          plan_weekly_price: 50
+          plan_weeks       : 8
+          status           : "open"
+        }
+        {
+          title            : "EA Sports FC 27"
+          format           : "solo_1v1"
+          lane_order       : 3
+          capacity         : 6144
+          roster_size      : 1
+          start_date       : "2026-11-23"
+          prize_base       : 100000
+          prize_per_player : 100000
+          plan_full_price  : 375
+          plan_weekly_price: 50
+          plan_weeks       : 8
+          status           : "open"
+        }
+        {
+          title            : "Counter-Strike 2"
+          format           : "team_5v5_plus1"
+          lane_order       : 4
+          capacity         : 6144
+          roster_size      : 6
+          start_date       : "2026-11-23"
+          prize_base       : 600000
+          prize_per_player : 100000
+          plan_full_price  : 1875
+          plan_weekly_price: 275
+          plan_weeks       : 8
+          status           : "open"
+        }
+        {
+          title            : "Valorant"
+          format           : "team_5v5_plus1"
+          lane_order       : 5
+          capacity         : 6144
+          roster_size      : 6
+          start_date       : "2026-11-23"
+          prize_base       : 600000
+          prize_per_player : 100000
+          plan_full_price  : 1875
+          plan_weekly_price: 275
+          plan_weeks       : 8
+          status           : "open"
+        }
+        {
+          title            : "Rocket League"
+          format           : "team_3v3"
+          lane_order       : 6
+          capacity         : 6144
+          roster_size      : 3
+          start_date       : "2026-11-23"
+          prize_base       : 85000
+          prize_per_player : 28333
+          plan_full_price  : 850
+          plan_weekly_price: 125
+          plan_weeks       : 8
+          status           : "open"
+        }
+      ]
+    }
   
-    conditional {
-      if ($tournaments_count == 0) {
-        // Lane 1: Tekken 8
-        db.add tournaments {
-          data = {
-            title            : "Tekken 8"
-            format           : "solo_1v1"
-            lane_order       : 1
-            capacity         : 6144
-            roster_size      : 1
-            start_date       : "2026-11-23"
-            prize_base       : 100000
-            prize_per_player : 100000
-            plan_full_price  : 375
-            plan_weekly_price: 50
-            plan_weeks       : 8
-            status           : "open"
-          }
-        } as $trn1
+    foreach ($launch_tournaments) {
+      each as $trn_spec {
+        db.query tournaments {
+          where = $db.tournaments.lane_order == $trn_spec.lane_order
+          return = {type: "single"}
+        } as $existing_trn
       
-        // Lane 2: Street Fighter 6
-        db.add tournaments {
-          data = {
-            title            : "Street Fighter 6"
-            format           : "solo_1v1"
-            lane_order       : 2
-            capacity         : 6144
-            roster_size      : 1
-            start_date       : "2026-11-23"
-            prize_base       : 100000
-            prize_per_player : 100000
-            plan_full_price  : 375
-            plan_weekly_price: 50
-            plan_weeks       : 8
-            status           : "open"
+        conditional {
+          if ($existing_trn == null) {
+            db.add tournaments {
+              data = {
+                title            : $trn_spec.title
+                format           : $trn_spec.format
+                lane_order       : $trn_spec.lane_order
+                capacity         : $trn_spec.capacity
+                roster_size      : $trn_spec.roster_size
+                start_date       : $trn_spec.start_date
+                prize_base       : $trn_spec.prize_base
+                prize_per_player : $trn_spec.prize_per_player
+                plan_full_price  : $trn_spec.plan_full_price
+                plan_weekly_price: $trn_spec.plan_weekly_price
+                plan_weeks       : $trn_spec.plan_weeks
+                status           : $trn_spec.status
+              }
+            } as $new_trn
           }
-        } as $trn2
-      
-        // Lane 3: EA Sports FC 27
-        db.add tournaments {
-          data = {
-            title            : "EA Sports FC 27"
-            format           : "solo_1v1"
-            lane_order       : 3
-            capacity         : 6144
-            roster_size      : 1
-            start_date       : "2026-11-23"
-            prize_base       : 100000
-            prize_per_player : 100000
-            plan_full_price  : 375
-            plan_weekly_price: 50
-            plan_weeks       : 8
-            status           : "open"
+        
+          else {
+            db.edit tournaments {
+              field_name = "id"
+              field_value = $existing_trn.id
+              data = {
+                title            : $trn_spec.title
+                format           : $trn_spec.format
+                capacity         : $trn_spec.capacity
+                roster_size      : $trn_spec.roster_size
+                start_date       : $trn_spec.start_date
+                prize_base       : $trn_spec.prize_base
+                prize_per_player : $trn_spec.prize_per_player
+                plan_full_price  : $trn_spec.plan_full_price
+                plan_weekly_price: $trn_spec.plan_weekly_price
+                plan_weeks       : $trn_spec.plan_weeks
+                status           : $trn_spec.status
+              }
+            } as $updated_trn
           }
-        } as $trn3
-      
-        // Lane 4: Counter-Strike 2
-        db.add tournaments {
-          data = {
-            title            : "Counter-Strike 2"
-            format           : "team_5v5_plus1"
-            lane_order       : 4
-            capacity         : 6144
-            roster_size      : 6
-            start_date       : "2026-11-23"
-            prize_base       : 600000
-            prize_per_player : 100000
-            plan_full_price  : 1875
-            plan_weekly_price: 275
-            plan_weeks       : 8
-            status           : "open"
-          }
-        } as $trn4
-      
-        // Lane 5: Valorant
-        db.add tournaments {
-          data = {
-            title            : "Valorant"
-            format           : "team_5v5_plus1"
-            lane_order       : 5
-            capacity         : 6144
-            roster_size      : 6
-            start_date       : "2026-11-23"
-            prize_base       : 600000
-            prize_per_player : 100000
-            plan_full_price  : 1875
-            plan_weekly_price: 275
-            plan_weeks       : 8
-            status           : "open"
-          }
-        } as $trn5
-      
-        // Lane 6: Rocket League
-        db.add tournaments {
-          data = {
-            title            : "Rocket League"
-            format           : "team_3v3"
-            lane_order       : 6
-            capacity         : 6144
-            roster_size      : 3
-            start_date       : "2026-11-23"
-            prize_base       : 300000
-            prize_per_player : 100000
-            plan_full_price  : null
-            plan_weekly_price: null
-            plan_weeks       : 8
-            status           : "open"
-          }
-        } as $trn6
+        }
       }
     }
   
@@ -532,6 +555,57 @@ function seed_season1_data {
             is_public : true
           }
         } as $c3
+      }
+    }
+  
+    // Seed Season 1 Grand Progressive Jackpot Vault if none active
+    db.query jackpot_vault {
+      where = $db.jackpot_vault.status == "active"
+      return = {type: "single"}
+    } as $active_vault
+  
+    conditional {
+      if ($active_vault == null) {
+        db.add jackpot_vault {
+          data = {
+            name                : "Season 1 Grand Progressive Vault"
+            current_vault_amount: 100000
+            funding_cut_pct     : 4
+            season              : 1
+            status              : "active"
+            running_total       : 100000
+          }
+        } as $seeded_vault
+      }
+    }
+  
+    // Seed Season 2 democratic title ballot candidate options if not yet seeded
+    db.query ballot_options {
+      where = $db.ballot_options.season == 2
+      return = {type: "count"}
+    } as $season2_ballot_count
+  
+    conditional {
+      if ($season2_ballot_count == 0) {
+        db.add ballot_options {
+          data = {
+            season    : 2
+            title     : "Call of Duty: Warzone"
+            vote_count: 0
+          }
+        } as $b1
+      
+        db.add ballot_options {
+          data = {season: 2, title: "Apex Legends", vote_count: 0}
+        } as $b2
+      
+        db.add ballot_options {
+          data = {season: 2, title: "Halo Infinite", vote_count: 0}
+        } as $b3
+      
+        db.add ballot_options {
+          data = {season: 2, title: "Overwatch 2", vote_count: 0}
+        } as $b4
       }
     }
   }

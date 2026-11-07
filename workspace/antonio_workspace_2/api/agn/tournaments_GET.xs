@@ -12,7 +12,7 @@ query tournaments verb=GET {
     } as $tournaments_count
   
     conditional {
-      if ($tournaments_count == 0) {
+      if ($tournaments_count < 6) {
         function.run seed_season1_data as $seeded
       }
     }

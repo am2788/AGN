@@ -12,8 +12,8 @@ table jackpot_vault {
     // Current total prize pool in the rolling vault
     decimal current_vault_amount?
   
-    // Percentage cut taken from wagers to fund jackpot
-    decimal funding_cut_pct?=5
+    // Percentage cut taken from wagers to fund jackpot (4% progressive vault from 8% total rake)
+    decimal funding_cut_pct?=4
   
     // Active competitive season number
     int season?=1

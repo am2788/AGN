@@ -8,8 +8,8 @@ function claim_first_strike {
     // Optional participating competitive team ID
     int? team_id
   
-    // Category identifier (e.g. season_1)
-    text category?=season_1 filters=trim
+    // Category identifier (e.g. solo, team, season_1)
+    text category?=solo filters=trim
   
     // Verified payment transaction ID from cleared bracket slot purchase
     text payment_id filters=trim
@@ -47,13 +47,18 @@ function claim_first_strike {
       value = false
     }
   
+    // Determine category: singleton for solo vs team
+    var $target_category {
+      value = ($input.team_id != null ? "team" : ($input.category == "team" ? "team" : "solo"))
+    }
+  
     conditional {
       if ($is_eligible) {
         db.transaction {
           stack {
-            // Check singleton claim status for category
+            // Check singleton claim status for category (solo or team)
             db.query first_strike {
-              where = $db.first_strike.category == $input.category
+              where = $db.first_strike.category == $target_category
               return = {type: "single"}
             } as $existing_claim
           
@@ -63,7 +68,7 @@ function claim_first_strike {
                   data = {
                     claimed_by_user_id: $input.user_id
                     claimed_by_team_id: $input.team_id
-                    category          : $input.category
+                    category          : $target_category
                     claimed_at        : "now"
                     payment_id        : $input.payment_id
                   }
@@ -87,7 +92,7 @@ function claim_first_strike {
                   }
                 }
               
-                // Unlock First Strike motion calling card into user cosmetic inventory
+                // Unlock First Strike 1-of-1 Legendary Calling Card into user cosmetic inventory
                 db.query calling_card {
                   where = $db.calling_card.key == "first_strike"
                   return = {type: "single"}
@@ -126,5 +131,9 @@ function claim_first_strike {
     }
   }
 
-  response = {success: $claimed, claimed: $claimed}
+  response = {
+    success : $claimed
+    claimed : $claimed
+    category: $target_category
+  }
 }
